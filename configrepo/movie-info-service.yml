@@ -1,0 +1,5 @@
+server.port: 8082
+spring.application.name: movie-info-service
+eureka.client.eureka-server-port: 8761
+eureka.client.service-url.defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
+api.key: 7934c476c643cdc223584b49dceb19e6
