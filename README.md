@@ -1,0 +1,1 @@
+These are very basic implementation of microservice pattern using Spring boot, Eureka, Hystrix and Zuul. There is not database and the values are hard coded in the application. The idea was to just practice the latest features of Eureka and Hystrix added since the last time I used them in 2016
