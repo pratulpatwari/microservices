@@ -1,0 +1,4 @@
+db:
+   connection: connection-string-here
+   host: localhost
+   port: 1200
