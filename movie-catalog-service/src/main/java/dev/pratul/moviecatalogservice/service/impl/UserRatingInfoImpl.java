@@ -21,7 +21,7 @@ public class UserRatingInfoImpl implements UserRatingInfo {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@Value("movie.ratings.service.uri")
+	@Value("${movie.ratings.service.uri}")
 	private String ratingsUri;
 
 	/*

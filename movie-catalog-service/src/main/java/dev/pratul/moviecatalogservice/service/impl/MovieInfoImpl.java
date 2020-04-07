@@ -19,7 +19,7 @@ public class MovieInfoImpl implements MovieInfo {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@Value("movie.info.service.uri")
+	@Value("${movie.info.service.uri}")
 	private String movieInfoUri;
 
 	@Override
