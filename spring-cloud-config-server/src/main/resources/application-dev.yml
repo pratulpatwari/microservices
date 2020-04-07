@@ -8,3 +8,6 @@ spring:
         git:
           uri: /Users/pratulpatwari/Desktop/microservices/
           search-paths: configrepo
+          
+      
+      
