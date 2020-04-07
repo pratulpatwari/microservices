@@ -1,6 +1,7 @@
 package dev.pratul.moviecatalogservice.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,9 +15,12 @@ import dev.pratul.moviecatalogservice.service.api.MovieInfo;
 
 @Service
 public class MovieInfoImpl implements MovieInfo {
-	
+
 	@Autowired
 	private RestTemplate restTemplate;
+
+	@Value("movie.info.service.uri")
+	private String movieInfoUri;
 
 	@Override
 	@HystrixCommand(fallbackMethod = "getFallbackCatalogItem", commandProperties = {
@@ -25,10 +29,9 @@ public class MovieInfoImpl implements MovieInfo {
 			@HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50"),
 			@HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "5000"), })
 	public CatalogItem getCatalogItem(Rating rating) {
-		Movie movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(), Movie.class);
+		Movie movie = restTemplate.getForObject(movieInfoUri + rating.getMovieId(), Movie.class);
 		return new CatalogItem(movie.getName(), movie.getDesc(), rating.getRating());
 	}
-
 
 	@SuppressWarnings("unused")
 	private CatalogItem getFallbackCatalogItem(Rating rating) {

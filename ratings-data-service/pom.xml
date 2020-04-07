@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dev.pratul</groupId>
-	<artifactId>movie-data-service</artifactId>
+	<artifactId>ratings-data-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>movie-data-service</name>
+	<name>ratings-data-service</name>
 	<description>Spring micro service to provide movie data</description>
 
 	<properties>

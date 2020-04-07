@@ -50,8 +50,11 @@ public class MovieCatalogController {
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 
 		UserRatings userRating = userRatingInfo.getUserRating(userId);
-
-		return userRating.getUserRating().stream().map(rating -> movieInfo.getCatalogItem(rating))
+		
+		if(userRating.getRatings() == null || userRating.getRatings().isEmpty()) {
+			return null;
+		}
+		return userRating.getRatings().stream().map(rating -> movieInfo.getCatalogItem(rating))
 				.collect(Collectors.toList());
 	}
 

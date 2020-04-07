@@ -3,6 +3,7 @@ package dev.pratul.moviecatalogservice.service.impl;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
@@ -20,6 +21,9 @@ public class UserRatingInfoImpl implements UserRatingInfo {
 	@Autowired
 	private RestTemplate restTemplate;
 
+	@Value("movie.ratings.service.uri")
+	private String ratingsUri;
+
 	/*
 	 * It is important to note that @HystrixCommand method has to be in separate
 	 * service class and not in the Controller class. If this method is part of
@@ -35,8 +39,7 @@ public class UserRatingInfoImpl implements UserRatingInfo {
 			@HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50"),
 			@HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "5000"), })
 	public UserRatings getUserRating(String userId) {
-		UserRatings ratings = restTemplate.getForObject("http://movie-data-service/ratingsdata/" + userId,
-				UserRatings.class);
+		UserRatings ratings = restTemplate.getForObject(ratingsUri + userId, UserRatings.class);
 		return ratings;
 	}
 
@@ -46,12 +49,10 @@ public class UserRatingInfoImpl implements UserRatingInfo {
 	 */
 	@SuppressWarnings("unused")
 	private UserRatings getFallbackUserRating(@PathVariable("userId") String userId) {
-		Rating rating = new Rating();
-		rating.setMovieId("0");
-		rating.setRating(0);
+		Rating rating = new Rating("0", 0);
 		UserRatings userRating = new UserRatings();
 		userRating.setUserId(userId);
-		userRating.setUserRating(Arrays.asList(rating));
+		userRating.setRatings(Arrays.asList(rating));
 		return userRating;
 	}
 }
