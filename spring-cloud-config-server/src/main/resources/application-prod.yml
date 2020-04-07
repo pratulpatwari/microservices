@@ -1,0 +1,10 @@
+server:
+  port: 9999 # in case you want to use different server in production
+  
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/pratulpatwari/microservices
+          search-paths: configrepo
