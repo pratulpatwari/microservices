@@ -1,4 +1,16 @@
-db:
-   connection: connection-string-here
-   host: localhost
-   port: 1200
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: admin
+    
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    
+  data:
+    jpa:
+      repositories:
+        enabled: true
