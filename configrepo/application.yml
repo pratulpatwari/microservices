@@ -14,3 +14,7 @@ spring:
     jpa:
       repositories:
         enabled: true
+
+user:
+  service:
+    uri: http://user-service/user/
