@@ -4,5 +4,4 @@ spring:
       uri: http://localhost:8888
       
   application:
-    name: client-positions
-    
+    name: client-positions 

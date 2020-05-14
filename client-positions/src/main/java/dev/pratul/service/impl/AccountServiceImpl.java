@@ -10,7 +10,7 @@ import dev.pratul.entity.Accounts;
 import dev.pratul.service.api.AccountService;
 
 @Service
-public class AccountServiceImpl implements AccountService{
+class AccountServiceImpl implements AccountService{
 
 	@Autowired
 	private AccountRepository accountRepository;

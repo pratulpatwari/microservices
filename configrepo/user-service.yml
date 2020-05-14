@@ -2,8 +2,15 @@ server:
   port: 9090
   
 spring:
-  application:
-    name: user-service
+  thymeleaf:
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    check-template: true
+    encoding: UTF-8
+    servlet:
+      content-type: text/html; charset=utf-8
     
 eureka:
   client:
