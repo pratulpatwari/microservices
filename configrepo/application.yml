@@ -26,8 +26,8 @@ user:
 client:
   position:
     service:
-      uri: http://client-position/api/positions/
+      uri: http://client-position/api/
 
 account:
   service:
-    uri: http://account-service/api/accounts/
+    uri: http://account-service/api/
