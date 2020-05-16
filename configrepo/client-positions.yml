@@ -9,4 +9,4 @@ eureka:
     healthcheck:
       enabled: true
   instance:
-    health-check-url:http://${eureka.hostname}:${server.port}/health
+    health-check-url:http://localhost:9091/health
