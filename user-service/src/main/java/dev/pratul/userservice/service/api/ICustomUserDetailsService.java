@@ -8,5 +8,5 @@ public interface ICustomUserDetailsService extends UserDetailsService {
 
 	User registerUser(User user);
 	
-	User getByUserId(String userId);
+	User getUserById(String userId);
 }

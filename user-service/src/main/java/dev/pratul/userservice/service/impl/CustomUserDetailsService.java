@@ -34,7 +34,7 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 	}
 
 	@Transactional
-	public User getByUserId(String userId) {
+	public User getUserById(String userId) {
 		return userRepository.findById(Long.valueOf(userId))
 				.orElseThrow(() -> new NoSuchElementException("User " + userId + " does not exists"));
 	}

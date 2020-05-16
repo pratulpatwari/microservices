@@ -7,23 +7,20 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
-@Table(name = "accounts", schema = "public")
+@Table(name = "assets", schema = "public")
 @Getter
 @Setter
-@ToString
-public class Accounts {
-	
+public class Assets {
+
 	@Id
 	@Column(name = "id")
 	private Long id;
-
-	@Column(name = "acc_id")
-	private String accountId;
-
-	@Column(name = "acc_name")
-	private String accountName;
-
+	
+	@Column(name = "symbol")
+	private String symbol;
+	
+	@Column(name = "market_value")
+	private double marketValue;
 }

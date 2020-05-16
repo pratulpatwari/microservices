@@ -10,20 +10,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "accounts", schema = "public")
+@Table(name = "users", schema = "public")
 @Getter
 @Setter
 @ToString
-public class Accounts {
-	
+public class User {
+
 	@Id
 	@Column(name = "id")
 	private Long id;
-
-	@Column(name = "acc_id")
-	private String accountId;
-
-	@Column(name = "acc_name")
-	private String accountName;
-
 }

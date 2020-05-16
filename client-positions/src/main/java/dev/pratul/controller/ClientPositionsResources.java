@@ -14,19 +14,19 @@ import dev.pratul.service.api.ClientPositionService;
 
 @RefreshScope
 @RestController
-@RequestMapping("/positions")
+@RequestMapping("/api/")
 public class ClientPositionsResources {
 
 	@Autowired
 	private ClientPositionService clientPositionService;
 
-	@GetMapping("/{userId}")
+	@GetMapping("{userId}")
 	public List<ClientPosition> getClientPositions(@PathVariable("userId") String userId) {
 		List<ClientPosition> cientPositions = clientPositionService.getClientPositions(userId);
 		return cientPositions;
 	}
 
-	@GetMapping("/lots/{clientId}")
+	@GetMapping("lots/{clientId}")
 	public String getClientPostionsLots(@PathVariable("clientId") String clientId) {
 		System.out.println("Lots for client:  " + clientId);
 		return "Lot: " + clientId;
