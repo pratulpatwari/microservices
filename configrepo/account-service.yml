@@ -8,3 +8,5 @@ eureka:
       defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
     healthcheck:
       enabled: true
+  instance:
+    health-check-url:http://localhost:9092/health
