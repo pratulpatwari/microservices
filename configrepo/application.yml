@@ -19,11 +19,8 @@ spring:
       repositories:
         enabled: true
 
-service-uri:
-  user: http://user-service/api/
-
-service-uri:
-  position: http://client-position/api/
-
-service-uri:
-  account: http://account-service/api/
+service:
+  uri:
+    user: http://user-service/api/
+    position: http://client-position/api/
+    account: http://account-service/api/
