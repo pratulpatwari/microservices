@@ -15,4 +15,5 @@ public class ServiceConfig {
 	private String user;
 	private String position;
 	private String account;
+	
 }

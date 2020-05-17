@@ -8,7 +8,8 @@ public interface ClientPositionService {
 
 	/*
 	 * Fetch all the client positions. Only the active accounts will be pulled in
-	 * account-service
+	 * account-service and the last 7 days of data for those accounts will be
+	 * fetched from the DB
 	 */
 	public List<ClientPosition> getClientPositions(String clientId);
 
