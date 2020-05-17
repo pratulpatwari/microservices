@@ -19,8 +19,16 @@ spring:
       repositories:
         enabled: true
 
+################# Service urls for different services #################
 service:
   uri:
     user: http://user-service/api/
     position: http://client-position/api/
     account: http://accounts-service/api/
+
+################## Enable all the endpoints for actuator ###############
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
