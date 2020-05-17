@@ -23,4 +23,4 @@ service:
   uri:
     user: http://user-service/api/
     position: http://client-position/api/
-    account: http://account-service/api/
+    account: http://accounts-service/api/
