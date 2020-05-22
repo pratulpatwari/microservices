@@ -1,7 +1,9 @@
-These are very basic implementation of microservices using. There is not database and the values are hard coded in the application. The idea was to just practice the latest features of Eureka and Hystrix added since the last time I used them in 2016
+Microservices architecture with below mentioned technologies.
 
-Java 11
-Spring boot
-Eureka
-Hystrix
-Zuul
+Java 11,
+Spring boot,
+Spring security,
+Eureka Discovery Server/Client,
+Hystrix Circuit Breaker,
+Zuul Proxy,
+PostgreSql DB
