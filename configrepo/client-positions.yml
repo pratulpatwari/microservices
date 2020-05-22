@@ -10,3 +10,15 @@ eureka:
       enabled: true
   instance:
     health-check-url:http://localhost:9091/health
+
+hystrix:
+  command:
+    clientPosition:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 500
+      circuitBreaker:
+        requestVolumeThreshold: 5
+        errorThresholdPercentage: 50
+        sleepWindowInMilliseconds: 1000

@@ -60,7 +60,7 @@
 		</dependency>
 		<dependency>
 			<groupId>dev.pratul</groupId>
-			<artifactId>Exceptions</artifactId>
+			<artifactId>exceptions</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>

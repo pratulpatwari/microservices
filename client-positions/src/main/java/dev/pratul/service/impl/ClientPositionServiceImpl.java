@@ -14,10 +14,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 
 import dev.pratul.ServiceConfig;
-import dev.pratul.UserServiceException;
 import dev.pratul.dao.ClientPositionRepository;
 import dev.pratul.entity.Accounts;
 import dev.pratul.entity.ClientPosition;
@@ -33,15 +31,11 @@ class ClientPositionServiceImpl implements ClientPositionService {
 
 	@Autowired
 	private ClientPositionRepository clientPositionRepository;
-	
+
 	@Autowired
 	private ServiceConfig serviceConfig;
 
-	@HystrixCommand(fallbackMethod = "getFallbackClientPosition", commandProperties = {
-			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000"),
-			@HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "5"),
-			@HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50"),
-			@HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "1000"), })
+	@HystrixCommand(fallbackMethod = "getFallbackClientPosition", commandKey = "clientPosition")
 	@Transactional
 	public List<ClientPosition> getClientPositions(String clientId) {
 		log.info("Entering getClientPositions() for clientId: {}", clientId);
@@ -61,17 +55,15 @@ class ClientPositionServiceImpl implements ClientPositionService {
 			accountList = new ArrayList<>(List.of(accounts.getBody()));
 			clientPositions = clientPositionRepository.findByAccountsInAndCreateDateBetween(accountList,
 					ZonedDateTime.now().minusDays(7).with(LocalTime.MIN), ZonedDateTime.now());
-		}
+		} else
+			throw new RestClientException(
+					"Call to account-service failed. Calling cache to return last fetched values");
 		log.info("Leaving getClientPositions() for clientId: {}, Total active accounts for clients: {}", clientId,
 				accountList.size());
 		return clientPositions;
 	}
 
-	@HystrixCommand(fallbackMethod = "getFallbackClientPosition", commandProperties = {
-			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000"),
-			@HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "5"),
-			@HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50"),
-			@HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "5000"), })
+	@HystrixCommand(fallbackMethod = "getFallbackClientPositionByAccount", commandKey = "clientPosition")
 	@Transactional
 	public List<ClientPosition> getClientPositionsByAccount(String clientId, String accountId) {
 		log.info("Entering getClientPositionsByAccount() for client {} and accountId {}", clientId, accountId);
@@ -84,9 +76,34 @@ class ClientPositionServiceImpl implements ClientPositionService {
 		return clientPositions;
 	}
 
-	@SuppressWarnings("unused")
-	private List<ClientPosition> getFallbackClientPosition(String clientId) {
-		log.error("Error while fetching the accounts from account-service for user {}. Entering getFallbackClientPosition()", clientId);
+	/*
+	 * Fallback method called by getClientPositions() using Hystrix fallback
+	 * mechanism
+	 * 
+	 * input: clientId output: List of client positions for all the accounts for
+	 * this user
+	 */
+	public List<ClientPosition> getFallbackClientPosition(String clientId) {
+		log.warn(
+				"Error while fetching the accounts from account-service for user {}. Entering getFallbackClientPosition()",
+				clientId);
+
+		// make a call to server cache to return the last fetched client-positions
+		return null;
+	}
+
+	/*
+	 * Fallback method called by getClientPositions() using Hystrix fallback
+	 * mechanism
+	 * 
+	 * input: clientId, accountId output: List of client positions for the mentioned
+	 * accounts for this user
+	 */
+	public List<ClientPosition> getFallbackClientPositionByAccount(String clientId, String accountId) {
+		log.warn(
+				"Error while fetching the accounts from account-service for user {} and account {}. Entering getFallbackClientPosition()",
+				clientId, accountId);
+
 		// make a call to server cache to return the last fetched client-positions
 		return null;
 	}

@@ -2,6 +2,8 @@ package dev.pratul.service.api;
 
 import java.util.Set;
 
+import org.springframework.http.ResponseEntity;
+
 import dev.pratul.entity.Accounts;
 
 public interface AccountService {
@@ -22,5 +24,11 @@ public interface AccountService {
 	 * purpose
 	 */
 	public Set<Accounts> getAllAccountsByUser(String userId);
+
+	/*
+	 * Deactivate the account in DB. Only user with certain roles can perform this
+	 * action.
+	 */
+	public ResponseEntity<Accounts> deactivateAccount(String accountId);
 
 }

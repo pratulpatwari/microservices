@@ -9,8 +9,8 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<packaging>jar</packaging>
-	<artifactId>Exceptions</artifactId>
-	<name>Exceptions</name>
+	<artifactId>exceptions</artifactId>
+	<name>exceptions</name>
 	<description>Dependency for standard Exception handling in all projects</description>
 
 	<properties>
