@@ -7,6 +7,7 @@
 		<groupId>dev.pratul</groupId>
 		<artifactId>Microservices</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<packaging>jar</packaging>
 	<artifactId>exceptions</artifactId>
@@ -16,11 +17,11 @@
 	<properties>
 		<java.version>${java.version}</java.version>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 	</dependencies>
 </project>

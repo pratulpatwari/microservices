@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8082
 
 eureka:
   client:
@@ -9,7 +9,7 @@ eureka:
     healthcheck:
       enabled: true
   instance:
-    health-check-url:http://localhost:8081/health
+    health-check-url:http://localhost:8082/health
 
 hystrix:
   command:

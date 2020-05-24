@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 	<groupId>dev.pratul</groupId>
 	<artifactId>Microservices</artifactId>
-	<!-- <version>0.0.1-SNAPSHOT</version> -->
+	<version>0.0.1-SNAPSHOT</version>
 	<name>Microservices</name>
 	<description>Dependency for standard for all projects</description>
 
@@ -100,6 +100,11 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<!-- Netflix Hystrix Circuit breaker -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
