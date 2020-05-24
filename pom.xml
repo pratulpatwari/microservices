@@ -28,7 +28,7 @@
 		<module>user-service</module>
 		<module>account-service</module>
 		<module>client-positions</module>
-		<module>spring-cloud-api-gateway</module>
+		<module>netflix-zuul-api-gateway</module>
 	</modules>
 	<dependencies>
 

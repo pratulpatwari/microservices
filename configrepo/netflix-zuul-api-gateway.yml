@@ -1,5 +1,5 @@
 server:
-  port: 9999
+  port: 8081
 
 eureka:
   client:
@@ -9,4 +9,16 @@ eureka:
     healthcheck:
       enabled: true
   instance:
-    health-check-url:http://localhost:9999/health
+    health-check-url:http://localhost:8081/health
+
+hystrix:
+  command:
+    zuulGateway:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 500
+      circuitBreaker:
+        requestVolumeThreshold: 5
+        errorThresholdPercentage: 50
+        sleepWindowInMilliseconds: 1000
