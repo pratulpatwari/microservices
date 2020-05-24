@@ -1,0 +1,12 @@
+server:
+  port: 9999
+
+eureka:
+  client:
+    eureka-server-port: 8761
+    service-url:
+      defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    health-check-url:http://localhost:9999/health

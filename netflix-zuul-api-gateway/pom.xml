@@ -9,9 +9,9 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<artifactId>spring-cloud-api-gateway</artifactId>
-	<name>spring-cloud-api-gateway</name>
-	<description>Spring Cloud API gateway acting as single entry point for all clients</description>
+	<artifactId>netflix-zuul-api-gateway</artifactId>
+	<name>netflix-zuul-api-gateway</name>
+	<description>Netflix Zuul api gateway to serve all RestTemplate microservices</description>
 
 	<properties>
 		<java.version>${java.version}</java.version>
@@ -21,6 +21,10 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 	</dependencies>
 
