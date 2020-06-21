@@ -68,6 +68,14 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 		return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
 	}
 
+	@ExceptionHandler(value = { NullPointerException.class })
+	public ResponseEntity<ErrorMessage> nullpointerException(NullPointerException exception,
+			HttpServletRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(ZonedDateTime.now(), HttpStatus.NOT_FOUND.value(),
+				Arrays.asList(exception.getMessage()));
+		return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+	}
+
 	@ExceptionHandler(value = { UserServiceException.class })
 	public ResponseEntity<ErrorMessage> handleSpecificException(Exception exception, WebRequest request) {
 		ErrorMessage errorMessage = new ErrorMessage(ZonedDateTime.now(), HttpStatus.NOT_FOUND.value(),

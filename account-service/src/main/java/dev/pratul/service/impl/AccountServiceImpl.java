@@ -1,15 +1,18 @@
 package dev.pratul.service.impl;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import dev.pratul.UserServiceException;
 import dev.pratul.dao.AccountRepository;
+import dev.pratul.dto.AccountDto;
 import dev.pratul.entity.Accounts;
 import dev.pratul.entity.Users;
 import dev.pratul.service.api.AccountService;
@@ -23,39 +26,63 @@ public class AccountServiceImpl implements AccountService {
 	private AccountRepository accountRepository;
 
 	@Transactional
-	public Accounts getAccountById(String id) {
+	public AccountDto getAccountById(String id) {
 		log.info("Entering getAccountById() {}", id);
+		Accounts account = accountRepository.findById(Long.valueOf(id))
+				.orElseThrow(() -> new NullPointerException("Account not found"));
 		log.info("Leaving getAccountById() {}", id);
-		return accountRepository.findById(Long.valueOf(id)).orElseThrow();
+		return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(), account.isStatus());
 	}
 
 	@Transactional
-	public Set<Accounts> getActiveAccountsByUser(String userId) {
+	public List<AccountDto> getActiveAccountsByUser(String userId) {
 		log.info("Entering getActiveAccountsByUser() for userId: {}", userId);
 		Users user = new Users();
 		user.setId(Long.valueOf(userId));
-		log.info("Leaving getActiveAccountsByUser() for userId: {}", userId);
-		return accountRepository.findByUsersAndStatusTrue(user);
+		Set<Accounts> accounts = accountRepository.findByUsersAndStatusTrue(user);
+		if (accounts != null && accounts.size() > 0) {
+			List<AccountDto> accountsDto = new LinkedList<>();
+			for (Accounts account : accounts) {
+				accountsDto.add(new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
+						account.isStatus()));
+			}
+			log.info("Leaving getActiveAccountsByUser(). # of accounts {} for user {}", accountsDto.size(), userId);
+			return accountsDto;
+		} else {
+			throw new NoSuchElementException("No active accounts available for user " + userId);
+		}
 	}
 
 	@Transactional
-	public Set<Accounts> getAllAccountsByUser(String userId) {
+	public List<AccountDto> getAllAccountsByUser(String userId) {
 		log.info("Entering getAllAccountsByUser() for userId: {}", userId);
 		Users user = new Users();
 		user.setId(Long.valueOf(userId));
 		log.info("Leaving getAllAccountsByUser() for userId: {}", userId);
-		return accountRepository.findByUsers(user);
+		Set<Accounts> accounts = accountRepository.findByUsers(user);
+		if (accounts != null && accounts.size() > 0) {
+			List<AccountDto> accountsDto = new LinkedList<>();
+			for (Accounts account : accounts) {
+				accountsDto.add(new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
+						account.isStatus()));
+			}
+			log.info("Leaving getActiveAccountsByUser(). # of accounts {} for user {}", accountsDto.size(), userId);
+			return accountsDto;
+		} else {
+			throw new NoSuchElementException("No accounts available for user " + userId);
+		}
 	}
 
 	@Transactional
-	public ResponseEntity<Accounts> deactivateAccount(String accountId) throws UserServiceException {
+	public AccountDto deactivateAccount(String accountId) throws UserServiceException {
 		log.info("Entering deactivateAccount() for accountId: {}", accountId);
 		Accounts account = accountRepository.findById(Long.valueOf(accountId))
-				.orElseThrow(() -> new UserServiceException("Account not found :: " + accountId));
+				.orElseThrow(() -> new NullPointerException("Account not found :: " + accountId));
 		account.setStatus(false);
-		final Accounts deactiveAccount = accountRepository.save(account);
+		final Accounts inactiveAccount = accountRepository.save(account);
 		log.info("Leaving deactivateAccount() for accountId: {}", accountId);
-		return ResponseEntity.ok(deactiveAccount);
+		return new AccountDto(inactiveAccount.getId(), inactiveAccount.getAccountId(), inactiveAccount.getAccountName(),
+				inactiveAccount.isStatus());
 	}
 
 }

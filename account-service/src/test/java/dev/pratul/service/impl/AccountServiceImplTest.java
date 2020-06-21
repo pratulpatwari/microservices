@@ -3,8 +3,10 @@ package dev.pratul.service.impl;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,9 +16,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.ResponseEntity;
 
 import dev.pratul.dao.AccountRepository;
+import dev.pratul.dto.AccountDto;
 import dev.pratul.entity.Accounts;
 import dev.pratul.entity.Users;
 import dev.pratul.service.api.AccountService;
@@ -53,31 +55,33 @@ class AccountServiceImplTest {
 
 	@Test
 	public void testGetAccountById() {
-		Mockito.when(accountRepository.findByAccountId(String.valueOf(account.getId()))).thenReturn(Optional.of(account));
-		Accounts result = accountService.getAccountById(String.valueOf(account.getId()));
+		Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+		AccountDto result = accountService.getAccountById(String.valueOf(account.getId()));
 		assertEquals(1, result.getId());
+		assertThrows(NullPointerException.class, () -> {
+			accountService.getAccountById("2");
+		});
 	}
 
 	@Test
 	public void testGetActiveAccountsByUser() {
 		Mockito.when(accountRepository.findByUsersAndStatusTrue(Mockito.any())).thenReturn(expected);
-		Set<Accounts> result = accountService.getActiveAccountsByUser(String.valueOf(user.getId()));
+		List<AccountDto> result = accountService.getActiveAccountsByUser(String.valueOf(user.getId()));
 		assertEquals(2, result.size());
-		for (Accounts account : result) {
+		for (AccountDto account : result) {
 			if (account.getId().equals(1L)) {
 				assertTrue(account.isStatus());
 			}
 			if (account.getId().equals(2L)) {
 				assertFalse(account.isStatus());
 			}
-
 		}
 	}
 
 	@Test
 	public void testGetAllAccountsByUser() {
 		Mockito.when(accountRepository.findByUsers(Mockito.any())).thenReturn(expected);
-		Set<Accounts> result = accountService.getAllAccountsByUser(String.valueOf(user.getId()));
+		List<AccountDto> result = accountService.getAllAccountsByUser(String.valueOf(user.getId()));
 		assertEquals(2, result.size());
 	}
 
@@ -86,7 +90,7 @@ class AccountServiceImplTest {
 		Optional<Accounts> acc = Optional.of(account);
 		Mockito.when(accountRepository.findById(account.getId())).thenReturn(acc);
 		Mockito.when(accountRepository.save(account)).thenReturn(account);
-		ResponseEntity<Accounts> response = accountService.deactivateAccount(String.valueOf(acc.get().getId()));
-		assertFalse(response.getBody().isStatus());
+		AccountDto response = accountService.deactivateAccount(String.valueOf(acc.get().getId()));
+		assertFalse(response.isStatus());
 	}
 }

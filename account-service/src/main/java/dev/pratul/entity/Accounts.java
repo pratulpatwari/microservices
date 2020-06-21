@@ -1,5 +1,6 @@
 package dev.pratul.entity;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,7 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -27,7 +28,12 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Accounts {
+public class Accounts implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8075681622950591587L;
 
 	@Id
 	@Column(name = "id")
@@ -44,7 +50,7 @@ public class Accounts {
 	@Column(name = "status")
 	private boolean status;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_accounts_map", schema = "public", joinColumns = {
 			@JoinColumn(name = "acc_id", referencedColumnName = "id", nullable = false, updatable = true) }, inverseJoinColumns = {
 					@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, updatable = true) })
