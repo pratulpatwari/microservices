@@ -23,10 +23,10 @@ public class AccountServiceImpl implements AccountService {
 	private AccountRepository accountRepository;
 
 	@Transactional
-	public Accounts getAccountById(String accountId) {
-		log.info("Entering getAccountById() {}", accountId);
-		log.info("Leaving getAccountById() {}", accountId);
-		return accountRepository.findByAccountId(accountId);
+	public Accounts getAccountById(String id) {
+		log.info("Entering getAccountById() {}", id);
+		log.info("Leaving getAccountById() {}", id);
+		return accountRepository.findById(Long.valueOf(id)).orElseThrow();
 	}
 
 	@Transactional

@@ -1,5 +1,6 @@
 package dev.pratul.dao;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +13,7 @@ import dev.pratul.entity.Users;
 public interface AccountRepository extends JpaRepository<Accounts, Long> {
 
 	
-	public Accounts findByAccountId(String accountId);
+	public Optional<Accounts> findByAccountId(String accountId);
 
 	public Set<Accounts> findByUsersAndStatusTrue(Users user);
 	

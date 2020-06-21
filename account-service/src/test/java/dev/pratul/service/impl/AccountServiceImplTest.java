@@ -53,7 +53,7 @@ class AccountServiceImplTest {
 
 	@Test
 	public void testGetAccountById() {
-		Mockito.when(accountRepository.findByAccountId(String.valueOf(account.getId()))).thenReturn(account);
+		Mockito.when(accountRepository.findByAccountId(String.valueOf(account.getId()))).thenReturn(Optional.of(account));
 		Accounts result = accountService.getAccountById(String.valueOf(account.getId()));
 		assertEquals(1, result.getId());
 	}

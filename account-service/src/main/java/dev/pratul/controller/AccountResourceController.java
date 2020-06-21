@@ -22,6 +22,11 @@ public class AccountResourceController {
 	@Autowired
 	private AccountService accountService;
 
+	@GetMapping("/{id}")
+	public Accounts getAccountById(@PathVariable(value = "id") String id) {
+		return accountService.getAccountById(id);
+	}
+
 	@GetMapping("/user/{id}")
 	public Set<Accounts> getActiveAccountsByUser(@PathVariable(value = "id") String userId) {
 		return accountService.getActiveAccountsByUser(userId);
