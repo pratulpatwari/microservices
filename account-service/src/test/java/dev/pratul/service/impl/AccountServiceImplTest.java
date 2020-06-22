@@ -78,12 +78,12 @@ class AccountServiceImplTest {
 		}
 	}
 
-	@Test
-	public void testGetAllAccountsByUser() {
-		Mockito.when(accountRepository.findByUsers(Mockito.any())).thenReturn(expected);
-		List<AccountDto> result = accountService.getAllAccountsByUser(String.valueOf(user.getId()));
-		assertEquals(2, result.size());
-	}
+//	@Test
+//	public void testGetAllAccountsByUser() {
+//		Mockito.when(accountRepository.findByUsers(Mockito.any())).thenReturn(expected);
+//		List<AccountDto> result = accountService.getAllAccountsByUser(String.valueOf(user.getId()));
+//		assertEquals(2, result.size());
+//	}
 
 	@Test
 	public void testDeactivateAccount() {

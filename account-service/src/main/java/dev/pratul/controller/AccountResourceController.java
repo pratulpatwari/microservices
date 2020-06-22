@@ -40,9 +40,10 @@ public class AccountResourceController {
 		return new ResponseEntity<>(accounts, HttpStatus.OK);
 	}
 
-	@PutMapping("/deactivate/{id}")
-	public ResponseEntity<AccountDto> deactivateAccount(@PathVariable(value = "id") String accountId) {
-		AccountDto deactiveAccount = accountService.deactivateAccount(accountId);
+	@PutMapping("/deactivate/{userId}/{accountId}")
+	public ResponseEntity<Boolean> deactivateAccount(@PathVariable(value = "userId") String userId,
+			@PathVariable(value = "accountId") String accountId) {
+		boolean deactiveAccount = accountService.deactivateUserAccount(userId, accountId);
 		return new ResponseEntity<>(deactiveAccount, HttpStatus.OK);
 	}
 }

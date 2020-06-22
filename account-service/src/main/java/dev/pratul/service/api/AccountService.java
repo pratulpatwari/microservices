@@ -29,4 +29,10 @@ public interface AccountService {
 	 */
 	public AccountDto deactivateAccount(String accountId);
 
+	/*
+	 * Deactivate the account in DB for the mentioned user. Only user with certain
+	 * roles can perform this action.
+	 */
+	public boolean deactivateUserAccount(String userId, String accountId);
+
 }

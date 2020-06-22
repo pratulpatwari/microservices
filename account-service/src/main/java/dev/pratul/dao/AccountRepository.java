@@ -17,6 +17,6 @@ public interface AccountRepository extends JpaRepository<Accounts, Long> {
 
 	public Set<Accounts> findByUsersAndStatusTrue(Users user);
 	
-	public Set<Accounts> findByUsers(Users user);
+	public Set<Accounts> findByUser(Users user);
 	
 }
