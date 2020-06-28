@@ -2,13 +2,17 @@ package dev.pratul.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +21,7 @@ import dev.pratul.service.api.AccountService;
 
 @RefreshScope
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/account")
 public class AccountResourceController {
 
 	@Autowired
@@ -44,6 +48,15 @@ public class AccountResourceController {
 	public ResponseEntity<Boolean> deactivateAccount(@PathVariable(value = "userId") String userId,
 			@PathVariable(value = "accountId") String accountId) {
 		boolean deactiveAccount = accountService.deactivateUserAccount(userId, accountId);
-		return new ResponseEntity<>(deactiveAccount, HttpStatus.OK);
+		return new ResponseEntity<>(deactiveAccount, deactiveAccount ? HttpStatus.OK : HttpStatus.NOT_MODIFIED);
+	}
+	
+	@PostMapping("/create")
+	public ResponseEntity<AccountDto> addAccount(@RequestBody @Valid AccountDto accountDto) {
+		AccountDto account = accountService.addAccount(accountDto);
+		if(account != null) {
+			return new ResponseEntity<>(account, HttpStatus.CREATED);
+		}
+		return new ResponseEntity<>(account, HttpStatus.NO_CONTENT); 
 	}
 }

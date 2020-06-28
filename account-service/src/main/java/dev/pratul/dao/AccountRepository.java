@@ -12,11 +12,12 @@ import dev.pratul.entity.Users;
 @Repository
 public interface AccountRepository extends JpaRepository<Accounts, Long> {
 
-	
 	public Optional<Accounts> findByAccountId(String accountId);
 
-	public Set<Accounts> findByUsersAndStatusTrue(Users user);
-	
+	public Set<Accounts> findByUserAndStatusTrue(Users user);
+
 	public Set<Accounts> findByUser(Users user);
-	
+
+	public Set<Accounts> findByUserAndStatusTrueAndUserAccount_StatusTrue(Users user);
+
 }

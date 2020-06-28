@@ -35,4 +35,16 @@ public interface AccountService {
 	 */
 	public boolean deactivateUserAccount(String userId, String accountId);
 
+	/*
+	 * Create an account with given details and assign it to provided list of users
+	 * 
+	 * Step 1: Make a call to users service to get the list of all users with id's
+	 * Step 2: Create account with details and map the account to list of users
+	 * 
+	 * @param: AccountDto with list of userIds to which account needs to be assigned
+	 * 
+	 * @return: AccountDto of newly created account
+	 */
+	public AccountDto addAccount(AccountDto accountDto);
+
 }

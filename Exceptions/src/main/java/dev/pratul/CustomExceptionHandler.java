@@ -43,22 +43,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 		return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
 	}
 
-	// DB constraint failed exception
-//	@ExceptionHandler(DataIntegrityViolationException.class)
-//	public ResponseEntity<ErrorMessage> constraintVoilationException(DataIntegrityViolationException ex) {
-//		String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
-//		if (message.contains("email")) {
-//			message = "Email already exists";
-//		} else if (message.contains("username")) {
-//			message = "Username already exists";
-//		} else {
-//			message = "Resource not found";
-//		}
-//		ErrorMessage errorMessage = new ErrorMessage(ZonedDateTime.now(), HttpStatus.CONFLICT.value(),
-//				Arrays.asList(message));
-//		return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
-//	}
-
 	// when the element requested does not exists
 	@ExceptionHandler(value = { NoSuchElementException.class })
 	public ResponseEntity<ErrorMessage> nosuchElementException(NoSuchElementException exception,

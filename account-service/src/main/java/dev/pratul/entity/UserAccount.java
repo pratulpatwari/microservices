@@ -2,9 +2,7 @@ package dev.pratul.entity;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,28 +20,32 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "user_accounts_map", schema = "public")
 @Data
-public class UserAccount implements Serializable{
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class UserAccount implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1328570349868916192L;
-	
+
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
 	@SequenceGenerator(name = "seq_gen", sequenceName = "user_accounts_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@EqualsAndHashCode.Include
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "acc_id")
 	private Accounts accounts;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@EqualsAndHashCode.Include
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private Users users;
 
@@ -63,25 +65,8 @@ public class UserAccount implements Serializable{
 	public UserAccount() {
 	}
 
-	public UserAccount(Accounts account, Users user) {
-		this.accounts = account;
+	public UserAccount(Users user, boolean status) {
 		this.users = user;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-		UserAccount that = (UserAccount) obj;
-		return Objects.equals(accounts, that.accounts) && Objects.equals(users, that.users);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(accounts, users);
+		this.status = status;
 	}
 }

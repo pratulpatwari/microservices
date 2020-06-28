@@ -1,6 +1,7 @@
 package dev.pratul.service.impl;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import dev.pratul.dao.AccountRepository;
 import dev.pratul.dto.AccountDto;
 import dev.pratul.entity.Accounts;
+import dev.pratul.entity.UserAccount;
 import dev.pratul.entity.Users;
 import dev.pratul.service.api.AccountService;
 
@@ -36,6 +40,7 @@ class AccountServiceImplTest {
 	Accounts account = new Accounts();
 	Accounts deactiveAccount = new Accounts();
 	Users user = new Users();
+	UserAccount userAccount = new UserAccount();
 
 	@BeforeEach
 	public void setupRepository() {
@@ -44,6 +49,9 @@ class AccountServiceImplTest {
 		account.setId(1L);
 		account.setStatus(true);
 		account.setAccountId("324567");
+		account.setUser(Stream.of(user).collect(Collectors.toSet()));
+		userAccount.setAccounts(account);
+		userAccount.setUsers(user);
 
 		deactiveAccount.setId(2L);
 		deactiveAccount.setStatus(false);
@@ -65,8 +73,8 @@ class AccountServiceImplTest {
 
 	@Test
 	public void testGetActiveAccountsByUser() {
-		Mockito.when(accountRepository.findByUsersAndStatusTrue(Mockito.any())).thenReturn(expected);
-		List<AccountDto> result = accountService.getActiveAccountsByUser(String.valueOf(user.getId()));
+		Mockito.when(accountRepository.findByUserAndStatusTrueAndUserAccount_StatusTrue(Mockito.any())).thenReturn(expected);
+		List<AccountDto> result = accountService.getActiveAccountsByUser("1");
 		assertEquals(2, result.size());
 		for (AccountDto account : result) {
 			if (account.getId().equals(1L)) {
@@ -92,5 +100,14 @@ class AccountServiceImplTest {
 		Mockito.when(accountRepository.save(account)).thenReturn(account);
 		AccountDto response = accountService.deactivateAccount(String.valueOf(acc.get().getId()));
 		assertFalse(response.isStatus());
+	}
+	
+	@Test
+	public void testAddAccount() {
+		Mockito.when(accountRepository.save(Mockito.any())).thenReturn(account);
+		AccountDto accountDto = new AccountDto(null, "123432", "Domestic", true, Stream.of(Long.valueOf(1)).collect(Collectors.toList()));
+		AccountDto expected = accountService.addAccount(accountDto);
+		assertEquals(1L, expected.getId());
+		assertNull(expected.getUserId());
 	}
 }

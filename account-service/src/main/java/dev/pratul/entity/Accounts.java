@@ -3,8 +3,9 @@ package dev.pratul.entity;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -28,11 +29,13 @@ import org.hibernate.annotations.NaturalIdCache;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "accounts", schema = "public")
 @Data
 @NaturalIdCache
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Accounts implements Serializable {
 
@@ -47,6 +50,7 @@ public class Accounts implements Serializable {
 	@SequenceGenerator(name = "seq_gen", sequenceName = "accounts_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
 
+	@EqualsAndHashCode.Include
 	@NaturalId
 	@Column(name = "acc_id")
 	private String accountId;
@@ -55,7 +59,7 @@ public class Accounts implements Serializable {
 	private String accountName;
 
 	@Column(name = "status")
-	private boolean status;
+	private boolean status = true;
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_accounts_map", schema = "public", joinColumns = {
@@ -64,7 +68,7 @@ public class Accounts implements Serializable {
 	private Set<Users> user = new HashSet<>();
 
 	@OneToMany(mappedBy = "accounts", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<UserAccount> users = new HashSet<>();
+	private Set<UserAccount> userAccount = new HashSet<>();
 
 	@Column(name = "create_date")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
@@ -74,22 +78,15 @@ public class Accounts implements Serializable {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	private ZonedDateTime updateDate;
 
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-		Accounts that = (Accounts) obj;
-		return Objects.equals(accountId, that.accountId);
+	public Accounts() {
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(accountId);
+	public Accounts(String accountId, String accountName, UserAccount... userAccount) {
+		this.accountId = accountId;
+		this.accountName = accountName;
+		for (UserAccount account : userAccount) {
+			account.setAccounts(this);
+		}
+		this.userAccount = Stream.of(userAccount).collect(Collectors.toSet());
 	}
-
 }
