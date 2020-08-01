@@ -37,9 +37,9 @@ public class UserAccount implements Serializable {
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
 	@SequenceGenerator(name = "seq_gen", sequenceName = "user_accounts_id_seq", schema = "public", allocationSize = 1)
+	@EqualsAndHashCode.Include
 	private Long id;
 
-	@EqualsAndHashCode.Include
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "acc_id")
 	private Accounts accounts;

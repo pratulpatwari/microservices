@@ -2,24 +2,6 @@ spring:
   profiles:
     active:
     - dev
-#
-#zuul:
-#  sensitive-headers:
-#    - Cookie
-#    - Set-Cookie
-#  routes:
-#    oauth:
-#      path: /oauth2/**
-#      url: https://pratul.auth.us-east-1.amazoncognito.com/oauth2/
-#      
-#
-#security:
-#  oauth2:
-#    resource:
-#      user-info-uri: https://pratul.auth.us-east-1.amazoncognito.com/oauth2/userInfo
-#      token-info-uri: https://pratul.auth.us-east-1.amazoncognito.com/oauth2/token
-#      jwk:
-#        key-set-uri: https://pratul.auth.us-east-1.amazoncognito.com/us-east-1_BeYx7HHjV/.well-known/jwks.json
-#    client:
-#      client-id: 360uen6reld28itbvmneo50fsk
-#      
+      
+
+

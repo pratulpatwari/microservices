@@ -25,6 +25,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -34,12 +35,14 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
 	@SequenceGenerator(name = "seq_gen", sequenceName = "users_id_seq", schema = "public", allocationSize = 1)
+	@EqualsAndHashCode.Include
 	private Long id;
 
 	@Column(name = "first_name")

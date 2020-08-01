@@ -1,6 +1,5 @@
 package dev.pratul.service.impl;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -9,13 +8,19 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 import dev.pratul.UserServiceException;
 import dev.pratul.dao.AccountRepository;
 import dev.pratul.dao.UserAccountRepository;
 import dev.pratul.dto.AccountDto;
+import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Accounts;
 import dev.pratul.entity.UserAccount;
 import dev.pratul.entity.Users;
@@ -26,11 +31,19 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-	@Autowired
-	private AccountRepository accountRepository;
+	private final AccountRepository accountRepository;
+	private final UserAccountRepository userAccountRepository;
+	private final RestTemplate restTemplate;
 
-	@Autowired
-	private UserAccountRepository userAccountRepository;
+	public AccountServiceImpl(AccountRepository accountRepository, UserAccountRepository userAccountRepository,
+			RestTemplate restTemplate) {
+		this.accountRepository = accountRepository;
+		this.userAccountRepository = userAccountRepository;
+		this.restTemplate = restTemplate;
+	}
+
+	@Value("${service.uri.user}")
+	private String userService;
 
 	@Transactional
 	public AccountDto getAccountById(String id) {
@@ -73,7 +86,8 @@ public class AccountServiceImpl implements AccountService {
 		} else {
 			List<AccountDto> dto = new LinkedList<>();
 			for (Accounts acc : accounts) {
-				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), acc.isStatus(), null));
+				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(),
+						acc.getUserAccount().stream().findFirst().get().isStatus(), null));
 			}
 			log.debug("Leaving getAllAccountsByUser(). # of accounts {} for user {}", dto.size(), userId);
 			return dto;
@@ -109,14 +123,21 @@ public class AccountServiceImpl implements AccountService {
 		return row == 1 ? true : false;
 	}
 
+	@HystrixCommand(fallbackMethod = "getUsersFromCache", commandKey = "accountService")
 	@Transactional
 	public AccountDto addAccount(AccountDto accountDto) {
 		log.debug("Entering addAccount() with details: {}", accountDto.toString());
-		List<Users> userList = new ArrayList<>();
+		UserAccount[] userAccounts = null;
+		String url = userService + "/user/list";
+		ResponseEntity<UserDto[]> userDtos = restTemplate.postForEntity(url, accountDto.getUserId(), UserDto[].class);
+		if (userDtos.getStatusCode() == HttpStatus.OK) {
+			userAccounts = new UserAccount[userDtos.getBody().length];
+			for (int i = 0; i < userDtos.getBody().length; i++) {
+				userAccounts[i] = new UserAccount(new Users(userDtos.getBody()[i].getId()), true);
+			}
+		}
 		Accounts account = new Accounts(accountDto.getAccountId(), accountDto.getAccountName(),
-				userList != null && userList.size() > 0
-						? userList.stream().map(u -> new UserAccount(u, true)).toArray(UserAccount[]::new)
-						: null);
+				userAccounts != null ? userAccounts : null);
 		try {
 			account = accountRepository.save(account);
 			if (account.getId() != null) {
@@ -124,13 +145,19 @@ public class AccountServiceImpl implements AccountService {
 				return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
 						account.isStatus(),
 						account.getUserAccount() != null && account.getUserAccount().size() > 0
-								? userList.stream().map(Users::getId).collect(Collectors.toList())
+								? account.getUserAccount().stream().map(acc -> acc.getUsers().getId()).collect(
+										Collectors.toList())
 								: null);
 			}
 		} catch (Exception ex) {
 			log.error("Error while saving the accounts: {}", ex.getMessage());
 			throw new UserServiceException("Account not be created. Please contact admin !");
 		}
+		return null;
+	}
+
+	@SuppressWarnings("unused")
+	private List<Users> getUserFromCache(String userId) {
 		return null;
 	}
 }

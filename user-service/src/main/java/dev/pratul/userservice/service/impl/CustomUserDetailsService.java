@@ -1,5 +1,7 @@
 package dev.pratul.userservice.service.impl;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.pratul.userservice.dao.UserRepository;
+import dev.pratul.userservice.dto.UserDto;
 import dev.pratul.userservice.entity.User;
 import dev.pratul.userservice.service.api.ICustomUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
@@ -43,5 +46,18 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 	public User registerUser(User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepository.save(user);
+	}
+
+	@Transactional
+	public List<UserDto> getUsersByIds(List<Long> ids) {
+		log.debug("Entering getUsersByIds() with # of users {}", ids.size());
+		List<User> userList = userRepository.findAllById(ids);
+		List<UserDto> userDtos = new LinkedList<>();
+		for (User user : userList) {
+			userDtos.add(new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(), user.getStatus(),
+					user.getLastName(), user.getEmail()));
+		}
+		log.debug("Leaving getUsersByIds() with # of users {}", userDtos.size());
+		return userDtos;
 	}
 }

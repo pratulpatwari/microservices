@@ -21,8 +21,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 
@@ -68,6 +71,8 @@ public class Accounts implements Serializable {
 	private Set<Users> user = new HashSet<>();
 
 	@OneToMany(mappedBy = "accounts", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Fetch(FetchMode.JOIN)
+	@BatchSize(size = 20)
 	private Set<UserAccount> userAccount = new HashSet<>();
 
 	@Column(name = "create_date")
