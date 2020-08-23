@@ -2,16 +2,14 @@ package dev.pratul.userservice.service.api;
 
 import java.util.List;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
-
 import dev.pratul.userservice.dto.UserDto;
 import dev.pratul.userservice.entity.User;
 
-public interface ICustomUserDetailsService extends UserDetailsService {
+public interface ICustomUserDetailsService {
 
-	User registerUser(User user);
+	UserDto registerUser(User user);
 	
-	User getUserById(String userId);
+	UserDto getUserById(String userId);
 	
 	List<UserDto> getUsersByIds(List<Long> ids);
 }

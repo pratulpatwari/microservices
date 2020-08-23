@@ -151,7 +151,7 @@ public class AccountServiceImpl implements AccountService {
 			}
 		} catch (Exception ex) {
 			log.error("Error while saving the accounts: {}", ex.getMessage());
-			throw new UserServiceException("Account not be created. Please contact admin !");
+			throw new UserServiceException("Account could not be assigned to the user. Please contact admin !");
 		}
 		return null;
 	}
