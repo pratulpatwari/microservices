@@ -18,7 +18,6 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 import dev.pratul.UserServiceException;
 import dev.pratul.dao.AccountRepository;
-import dev.pratul.dao.UserAccountRepository;
 import dev.pratul.dto.AccountDto;
 import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Accounts;
@@ -32,13 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 public class AccountServiceImpl implements AccountService {
 
 	private final AccountRepository accountRepository;
-	private final UserAccountRepository userAccountRepository;
 	private final RestTemplate restTemplate;
 
-	public AccountServiceImpl(AccountRepository accountRepository, UserAccountRepository userAccountRepository,
-			RestTemplate restTemplate) {
+	public AccountServiceImpl(AccountRepository accountRepository, RestTemplate restTemplate) {
 		this.accountRepository = accountRepository;
-		this.userAccountRepository = userAccountRepository;
 		this.restTemplate = restTemplate;
 	}
 
@@ -117,10 +113,20 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public boolean deactivateUserAccount(String userId, String accountId) {
 		log.debug("Entering deactivateUserAccount() for accountId and userId: {}, {}", accountId, userId);
-		int row = userAccountRepository.deactivateUserAccount(Long.valueOf(userId), Long.valueOf(accountId));
-		log.debug("Leaving deactivateUserAccount() for accountId and userId: {}, {}. # of rows impacted: {}", accountId,
-				userId, row);
-		return row == 1 ? true : false;
+		Accounts account = accountRepository.findByAccountId(accountId)
+				.orElseThrow(() -> new NullPointerException("Account not found"));
+		account.getUserAccount().stream().filter(acc -> acc.getUsers().getId() == Long.valueOf(userId)).findFirst()
+				.ifPresent(u -> u.setStatus(false));
+		account = accountRepository.save(account);
+		UserAccount userAccount = account.getUserAccount().stream()
+				.filter(acc -> acc.getUsers().getId() == Long.valueOf(userId)).findFirst().orElse(null);
+		boolean status = false;
+		if (!userAccount.isStatus()) {
+			status = true;
+		}
+		log.debug("Leaving deactivateUserAccount() for accountId and userId: {}, {}. status of userAccount: {}",
+				accountId, userId);
+		return status;
 	}
 
 	@HystrixCommand(fallbackMethod = "getUsersFromCache", commandKey = "accountService")

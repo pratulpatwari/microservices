@@ -19,5 +19,4 @@ public interface AccountRepository extends CrudRepository<Accounts, Long> {
 	public Set<Accounts> findByUser(Users user);
 
 	public Set<Accounts> findByUserAndStatusTrueAndUserAccount_StatusTrue(Users user);
-
 }
