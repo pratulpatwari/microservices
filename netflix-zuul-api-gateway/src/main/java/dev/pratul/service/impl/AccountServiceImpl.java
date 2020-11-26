@@ -23,7 +23,9 @@ public class AccountServiceImpl implements IAccountService {
 	@HystrixCommand(fallbackMethod = "getFallbackAccountByUserId", commandKey = "zuulGateway")
 	public Set<Account> getAccountByUserId(String userId) {
 		log.info("Entering getAccountByUserId() for user {}", userId);
-		Set<Account> accounts = accountService.getAccountByUserId("1");
+		Set<Account> accounts = accountService.getAccountByUserId(userId);
+		Set<Account> allAccounts = accountService.getAllAccountsByUser(userId);
+		
 		log.info("Leaving getAccountByUserId() for user {}", userId);
 		return accounts;
 	}

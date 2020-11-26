@@ -1,5 +1,6 @@
 package dev.pratul.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -15,5 +16,5 @@ public class AccountDto {
 	private String accountId;
 	private String accountName;
 	private boolean status;
-	private List<Long> userId;
+	private List<UserDto> users = new ArrayList<>();
 }

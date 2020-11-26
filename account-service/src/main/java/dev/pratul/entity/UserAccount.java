@@ -47,7 +47,7 @@ public class UserAccount implements Serializable {
 	@EqualsAndHashCode.Include
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
-	private Users users;
+	private User user;
 
 	@Column(name = "status")
 	private boolean status;
@@ -65,8 +65,8 @@ public class UserAccount implements Serializable {
 	public UserAccount() {
 	}
 
-	public UserAccount(Users user, boolean status) {
-		this.users = user;
+	public UserAccount(User user, boolean status) {
+		this.user = user;
 		this.status = status;
 	}
 }

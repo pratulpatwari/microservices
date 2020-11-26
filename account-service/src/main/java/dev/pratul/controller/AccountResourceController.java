@@ -1,6 +1,8 @@
 package dev.pratul.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -32,31 +34,34 @@ public class AccountResourceController {
 		return new ResponseEntity<>(accountService.getAccountById(id), HttpStatus.OK);
 	}
 
+	@PutMapping("/{accountId}")
+	public ResponseEntity<AccountDto> deactivateAccount(@PathVariable(value = "accountId") String accountId) {
+		List<AccountDto> dto = accountService.updateAccountStatus(Stream.of(accountId).collect(Collectors.toList()));
+		return new ResponseEntity<>(dto.get(0),
+				dto != null && !dto.isEmpty() ? HttpStatus.OK : HttpStatus.PRECONDITION_FAILED);
+	}
+
 	@GetMapping("/user/{id}")
 	public ResponseEntity<List<AccountDto>> getActiveAccountsByUser(@PathVariable(value = "id") String userId) {
 		List<AccountDto> accounts = accountService.getActiveAccountsByUser(userId);
 		return new ResponseEntity<>(accounts, HttpStatus.OK);
 	}
 
-	@GetMapping("/user/all/{id}")
-	public ResponseEntity<List<AccountDto>> getAllAccountsByUser(@PathVariable(value = "id") String userId) {
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<List<AccountDto>> getAllAccountsByUser(@PathVariable(value = "userId") String userId) {
 		List<AccountDto> accounts = accountService.getAllAccountsByUser(userId);
 		return new ResponseEntity<>(accounts, HttpStatus.OK);
 	}
 
-	@PutMapping("/deactivate/{userId}/{accountId}")
-	public ResponseEntity<Boolean> deactivateAccount(@PathVariable(value = "userId") String userId,
-			@PathVariable(value = "accountId") String accountId) {
-		boolean deactiveAccount = accountService.deactivateUserAccount(userId, accountId);
-		return new ResponseEntity<>(deactiveAccount, deactiveAccount ? HttpStatus.OK : HttpStatus.NOT_MODIFIED);
+	@PutMapping("/user")
+	public ResponseEntity<List<AccountDto>> deactivateAccount(@RequestBody @Valid List<AccountDto> accountDto) {
+		List<AccountDto> deactiveAccount = accountService.updateUserAccount(accountDto);
+		return new ResponseEntity<>(deactiveAccount, deactiveAccount != null ? HttpStatus.OK : HttpStatus.NOT_MODIFIED);
 	}
-	
-	@PostMapping("/create")
+
+	@PostMapping("/add")
 	public ResponseEntity<AccountDto> addAccount(@RequestBody @Valid AccountDto accountDto) {
 		AccountDto account = accountService.addAccount(accountDto);
-		if(account != null) {
-			return new ResponseEntity<>(account, HttpStatus.CREATED);
-		}
-		return new ResponseEntity<>(account, HttpStatus.NO_CONTENT); 
+		return new ResponseEntity<>(account, account != null ? HttpStatus.CREATED : HttpStatus.NO_CONTENT);
 	}
 }

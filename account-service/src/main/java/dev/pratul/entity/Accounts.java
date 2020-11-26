@@ -1,6 +1,5 @@
 package dev.pratul.entity;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,12 +39,7 @@ import lombok.EqualsAndHashCode;
 @NaturalIdCache
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Accounts implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8075681622950591587L;
+public class Accounts {
 
 	@Id
 	@Column(name = "id")
@@ -68,7 +62,7 @@ public class Accounts implements Serializable {
 	@JoinTable(name = "user_accounts_map", schema = "public", joinColumns = {
 			@JoinColumn(name = "acc_id", referencedColumnName = "id", nullable = false, updatable = true) }, inverseJoinColumns = {
 					@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, updatable = true) })
-	private Set<Users> user = new HashSet<>();
+	private Set<User> user = new HashSet<>();
 
 	@OneToMany(mappedBy = "accounts", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Fetch(FetchMode.JOIN)

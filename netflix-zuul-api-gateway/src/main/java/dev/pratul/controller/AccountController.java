@@ -12,14 +12,14 @@ import dev.pratul.model.Account;
 import dev.pratul.service.api.IAccountService;
 
 @RestController
-@RequestMapping("/api/account/")
+@RequestMapping("/api/account")
 //@PreAuthorize("hasRole('USER')")
 public class AccountController {
 
 	@Autowired
 	private IAccountService accountService;
 
-	@GetMapping("user/{userId}")
+	@GetMapping("/user/{userId}")
 	public Set<Account> getAccount(@PathVariable("userId") String userId) {
 		return accountService.getAccountByUserId(userId);
 	}

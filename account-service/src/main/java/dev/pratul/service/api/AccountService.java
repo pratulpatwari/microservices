@@ -24,16 +24,21 @@ public interface AccountService {
 	public List<AccountDto> getAllAccountsByUser(String userId);
 
 	/*
-	 * Deactivate the account in DB. Only user with certain roles can perform this
-	 * action.
+	 * Activate/Deactivate the account. Only users with certain roles can perform
+	 * this action. De-activating the account will de-activate at user level as
+	 * well. However, re-activating the account will not provide the access to
+	 * previously assigned users. If you want to activate the account for each user,
+	 * refer updateUserAccount
 	 */
-	public AccountDto deactivateAccount(String accountId);
+	public List<AccountDto> updateAccountStatus(List<String> accountId);
 
 	/*
-	 * Deactivate the account in DB for the mentioned user. Only user with certain
-	 * roles can perform this action.
+	 * Activate/Deactivate the account in DB for the mentioned user. Only user with
+	 * certain roles can perform this action. If the user passed in as an object is
+	 * not already mapped to the account, a new entry will be created with the
+	 * mapping, else the status of existing mapping will be changed accordingly
 	 */
-	public boolean deactivateUserAccount(String userId, String accountId);
+	public List<AccountDto> updateUserAccount(List<AccountDto> accounts);
 
 	/*
 	 * Create an account with given details and assign it to provided list of users

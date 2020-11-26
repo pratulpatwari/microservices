@@ -27,7 +27,7 @@ public class UserRestController {
 	@Autowired
 	private ICustomUserDetailsService userService;
 
-	@GetMapping("/id/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<UserDto> getUserById(@PathVariable("id") String id) {
 		UserDto user = userService.getUserById(id);
 		return new ResponseEntity<>(user != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);

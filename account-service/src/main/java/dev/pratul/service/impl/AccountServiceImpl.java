@@ -1,7 +1,9 @@
 package dev.pratul.service.impl;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,8 +23,8 @@ import dev.pratul.dao.AccountRepository;
 import dev.pratul.dto.AccountDto;
 import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Accounts;
+import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
-import dev.pratul.entity.Users;
 import dev.pratul.service.api.AccountService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,9 +56,8 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public List<AccountDto> getActiveAccountsByUser(String userId) {
 		log.debug("Entering getActiveAccountsByUser() for userId: {}", userId);
-		Users user = new Users();
-		user.setId(Long.valueOf(userId));
-		Set<Accounts> accounts = accountRepository.findByUserAndStatusTrueAndUserAccount_StatusTrue(user);
+		Set<Accounts> accounts = accountRepository
+				.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(Long.valueOf(userId));
 		if (accounts == null || accounts.isEmpty()) {
 			log.error("No accounts available for user: {}", userId);
 			throw new NoSuchElementException("No accounts available for user " + userId);
@@ -73,9 +74,7 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public List<AccountDto> getAllAccountsByUser(String userId) {
 		log.debug("Entering getAllAccountsByUser() for userId: {}", userId);
-		Users user = new Users();
-		user.setId(Long.valueOf(userId));
-		Set<Accounts> accounts = accountRepository.findByUser(user);
+		Set<Accounts> accounts = accountRepository.findByUser(new User(Long.valueOf(userId)));
 		if (accounts == null || accounts.isEmpty()) {
 			log.error("No accounts available for user: {}", userId);
 			throw new NoSuchElementException("No accounts available for user " + userId);
@@ -91,42 +90,96 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Transactional
-	public AccountDto deactivateAccount(String accountId) {
-		log.debug("Entering deactivateAccount() for accountId: {}", accountId);
-
-		Accounts account = accountRepository.findById(Long.valueOf(accountId))
-				.orElseThrow(() -> new NullPointerException("Account not found :: " + accountId));
-
-		// deactivate account for all users
-		account.getUserAccount().stream().forEach(acc -> acc.setStatus(false));
-
-		// deactivate the account in account table
-		account.setStatus(false);
-
-		final Accounts inactiveAccount = accountRepository.save(account);
-
-		log.debug("Leaving deactivateAccount() for accountId: {}", accountId);
-		return new AccountDto(inactiveAccount.getId(), inactiveAccount.getAccountId(), inactiveAccount.getAccountName(),
-				inactiveAccount.isStatus(), null);
+	public List<AccountDto> updateAccountStatus(List<String> accountList) {
+		log.debug("Entering updateAccountStatus() for # of accounts: {}", accountList.size());
+		Set<Long> accountToLookup = accountList.stream().map(acc -> Long.valueOf(acc)).collect(Collectors.toSet());
+		List<AccountDto> accountDtos = new LinkedList<>();
+		Set<Accounts> accounts = accountRepository.findByIdIn(accountToLookup);
+		if (accounts == null || accounts.isEmpty()) {
+			throw new NullPointerException("Accounts not found");
+		}
+		for (Accounts account : accounts) {
+			// deactivate account for all users when account is being deactivate
+			if (account.isStatus()) {
+				account.getUserAccount().stream().forEach(acc -> acc.setStatus(false));
+			}
+			account.setStatus(!account.isStatus());
+		}
+		final List<Accounts> updatedAccounts = accountRepository.saveAll(accounts);
+		for (Accounts account : updatedAccounts) {
+			accountDtos.add(new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
+					account.isStatus(), null));
+		}
+		log.debug("Leaving updateAccountStatus() for accountId: {}");
+		return accountDtos;
 	}
 
 	@Transactional
-	public boolean deactivateUserAccount(String userId, String accountId) {
-		log.debug("Entering deactivateUserAccount() for accountId and userId: {}, {}", accountId, userId);
-		Accounts account = accountRepository.findByAccountId(accountId)
-				.orElseThrow(() -> new NullPointerException("Account not found"));
-		account.getUserAccount().stream().filter(acc -> acc.getUsers().getId() == Long.valueOf(userId)).findFirst()
-				.ifPresent(u -> u.setStatus(false));
-		account = accountRepository.save(account);
-		UserAccount userAccount = account.getUserAccount().stream()
-				.filter(acc -> acc.getUsers().getId() == Long.valueOf(userId)).findFirst().orElse(null);
-		boolean status = false;
-		if (!userAccount.isStatus()) {
-			status = true;
+	public List<AccountDto> updateUserAccount(List<AccountDto> accountDtos) {
+		log.debug("Entering updateUserAccount() for userId and account: {}, {}", accountDtos.toString());
+		List<AccountDto> result = new LinkedList<>();
+		Map<String, AccountDto> accountMap = accountDtos.stream()
+				.collect(Collectors.toMap(AccountDto::getAccountId, acc -> acc));
+		Set<Accounts> accounts = accountRepository.findByAccountIdIn(accountMap.keySet());
+		for (Accounts account : accounts) {
+			AccountDto accDto = accountMap.get(account.getAccountId());
+			Set<UserAccount> userAccount = new HashSet<>();
+			if (accDto != null && !accDto.getUsers().isEmpty()) {
+				for (UserDto user : accDto.getUsers()) {
+					account.getUserAccount().stream().filter(u -> u.getUser().getId() == user.getId()).findAny()
+							.ifPresentOrElse(u -> {
+								u.setStatus(accDto.isStatus());
+							}, () -> {
+								UserDto userDto = getUserById(user.getId());
+								if (userDto != null) {
+									User u = new User(userDto.getId());
+									u.setFirstName(userDto.getFirstName());
+									u.setLastName(userDto.getLastName());
+									u.setMiddleInitial(userDto.getMiddleInitial());
+									u.setStatus(userDto.getStatus());
+									userAccount.add(new UserAccount(u, true));
+								} else {
+									log.debug(
+											"User {} not found. User account map will be skipped, rest other accounts will be processed",
+											user.getId());
+								}
+							});
+				}
+				if (!userAccount.isEmpty()) {
+					account.getUserAccount().addAll(userAccount);
+				}
+				try {
+					final Accounts updatedAccount = accountRepository.save(account);
+					AccountDto acc = new AccountDto(updatedAccount.getId(), updatedAccount.getAccountId(),
+							updatedAccount.getAccountName(), updatedAccount.isStatus(),
+							updatedAccount.getUser() != null
+									? updatedAccount.getUser().stream()
+											.map(u -> new UserDto(u.getId(), u.getFirstName(), u.getMiddleInitial(),
+													u.getStatus(), u.getLastName(), null))
+											.collect(Collectors.toList())
+									: null);
+					result.add(acc);
+				} catch (Exception ex) {
+					log.error("Error while saving the account: {}. Exception: {}", account.getAccountId(),
+							ex.getMessage());
+				}
+			} else {
+				log.error("Account {} you are trying to assign users is not found", account.getAccountId());
+			}
 		}
-		log.debug("Leaving deactivateUserAccount() for accountId and userId: {}, {}. status of userAccount: {}",
-				accountId, userId);
-		return status;
+		return result;
+	}
+
+	@HystrixCommand(fallbackMethod = "getUsersFromCache", commandKey = "accountService")
+	public UserDto getUserById(Long userId) {
+		String url = userService + "/api/user/" + userId;
+		ResponseEntity<UserDto> user = restTemplate.getForEntity(url, UserDto.class);
+		if (user.getStatusCode() == HttpStatus.OK) {
+			return user.getBody();
+		} else {
+			log.error("User {} not found", userId);
+		}
+		return null;
 	}
 
 	@HystrixCommand(fallbackMethod = "getUsersFromCache", commandKey = "accountService")
@@ -135,11 +188,12 @@ public class AccountServiceImpl implements AccountService {
 		log.debug("Entering addAccount() with details: {}", accountDto.toString());
 		UserAccount[] userAccounts = null;
 		String url = userService + "/user/list";
-		ResponseEntity<UserDto[]> userDtos = restTemplate.postForEntity(url, accountDto.getUserId(), UserDto[].class);
+		List<Long> userIds = accountDto.getUsers().stream().map(u -> u.getId()).collect(Collectors.toList());
+		ResponseEntity<UserDto[]> userDtos = restTemplate.postForEntity(url, userIds, UserDto[].class);
 		if (userDtos.getStatusCode() == HttpStatus.OK) {
 			userAccounts = new UserAccount[userDtos.getBody().length];
 			for (int i = 0; i < userDtos.getBody().length; i++) {
-				userAccounts[i] = new UserAccount(new Users(userDtos.getBody()[i].getId()), true);
+				userAccounts[i] = new UserAccount(new User(userDtos.getBody()[i].getId()), true);
 			}
 		}
 		Accounts account = new Accounts(accountDto.getAccountId(), accountDto.getAccountName(),
@@ -150,9 +204,12 @@ public class AccountServiceImpl implements AccountService {
 				log.debug("Leaving addAccount() with Id: {}", accountDto.getId());
 				return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
 						account.isStatus(),
-						account.getUserAccount() != null && account.getUserAccount().size() > 0
-								? account.getUserAccount().stream().map(acc -> acc.getUsers().getId()).collect(
-										Collectors.toList())
+						account.getUserAccount() != null && !account.getUserAccount().isEmpty()
+								? account.getUserAccount().stream()
+										.map(acc -> new UserDto(acc.getUser().getId(), acc.getUser().getFirstName(),
+												acc.getUser().getMiddleInitial(), acc.getUser().getStatus(),
+												acc.getUser().getLastName(), acc.getUser().getEmail()))
+										.collect(Collectors.toList())
 								: null);
 			}
 		} catch (Exception ex) {
@@ -163,7 +220,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@SuppressWarnings("unused")
-	private List<Users> getUserFromCache(String userId) {
+	private List<UserDto> getUserFromCache(String userId) {
 		return null;
 	}
 }
