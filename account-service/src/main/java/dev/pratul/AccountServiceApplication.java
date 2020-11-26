@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableJpaRepositories(basePackages = { "dev.pratul" })
 @EntityScan(basePackages = { "dev.pratul" })
 @EnableTransactionManagement
+@EnableCircuitBreaker
 public class AccountServiceApplication {
 
 	public static void main(String[] args) {

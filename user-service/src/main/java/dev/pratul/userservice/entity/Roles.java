@@ -4,8 +4,6 @@ import java.time.ZonedDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,10 +33,10 @@ public class Roles {
 	@SequenceGenerator(name = "seq_gen", sequenceName = "roles_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
 
-	@Column(name = "name")
-	@NotBlank
-	@Enumerated(EnumType.STRING)
-	private RoleType name;
+//	@Column(name = "name")
+//	@NotBlank
+//	@Enumerated(EnumType.STRING)
+//	private RoleType name;
 
 	@Column(name = "description")
 	@NotBlank

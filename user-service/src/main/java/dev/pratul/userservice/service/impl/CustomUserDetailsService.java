@@ -22,8 +22,8 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 	private UserRepository userRepository;
 
 	@Transactional
-	public UserDto getUserById(String userId) {
-		User user = userRepository.findById(Long.valueOf(userId))
+	public UserDto getUserById(Long userId) {
+		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new UserServiceException("User " + userId + " does not exists"));
 		return new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(), user.getStatus(),
 				user.getLastName(), user.getEmail());

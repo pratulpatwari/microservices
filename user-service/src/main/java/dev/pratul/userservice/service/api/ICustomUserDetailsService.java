@@ -9,7 +9,7 @@ public interface ICustomUserDetailsService {
 
 	UserDto registerUser(User user);
 	
-	UserDto getUserById(String userId);
+	UserDto getUserById(Long userId);
 	
 	List<UserDto> getUsersByIds(List<Long> ids);
 }

@@ -41,7 +41,7 @@ public class AccountResourceController {
 				dto != null && !dto.isEmpty() ? HttpStatus.OK : HttpStatus.PRECONDITION_FAILED);
 	}
 
-	@GetMapping("/user/{id}")
+	@GetMapping("/user/active/{id}")
 	public ResponseEntity<List<AccountDto>> getActiveAccountsByUser(@PathVariable(value = "id") String userId) {
 		List<AccountDto> accounts = accountService.getActiveAccountsByUser(userId);
 		return new ResponseEntity<>(accounts, HttpStatus.OK);

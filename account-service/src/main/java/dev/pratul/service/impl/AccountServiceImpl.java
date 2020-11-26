@@ -114,6 +114,7 @@ public class AccountServiceImpl implements AccountService {
 		return accountDtos;
 	}
 
+	@HystrixCommand(fallbackMethod = "getUserFromCache", commandKey = "accountService")
 	@Transactional
 	public List<AccountDto> updateUserAccount(List<AccountDto> accountDtos) {
 		log.debug("Entering updateUserAccount() for userId and account: {}, {}", accountDtos.toString());
@@ -128,6 +129,8 @@ public class AccountServiceImpl implements AccountService {
 				for (UserDto user : accDto.getUsers()) {
 					account.getUserAccount().stream().filter(u -> u.getUser().getId() == user.getId()).findAny()
 							.ifPresentOrElse(u -> {
+								UserDto userDto = getUserById(user.getId());
+								log.debug("User Object: ", userDto);
 								u.setStatus(accDto.isStatus());
 							}, () -> {
 								UserDto userDto = getUserById(user.getId());
@@ -153,9 +156,10 @@ public class AccountServiceImpl implements AccountService {
 					AccountDto acc = new AccountDto(updatedAccount.getId(), updatedAccount.getAccountId(),
 							updatedAccount.getAccountName(), updatedAccount.isStatus(),
 							updatedAccount.getUser() != null
-									? updatedAccount.getUser().stream()
-											.map(u -> new UserDto(u.getId(), u.getFirstName(), u.getMiddleInitial(),
-													u.getStatus(), u.getLastName(), null))
+									? updatedAccount.getUserAccount().stream().filter(ua -> ua.isStatus())
+											.map(u -> new UserDto(u.getUser().getId(), u.getUser().getFirstName(),
+													u.getUser().getMiddleInitial(), u.getUser().getStatus(),
+													u.getUser().getLastName(), null))
 											.collect(Collectors.toList())
 									: null);
 					result.add(acc);
@@ -170,9 +174,8 @@ public class AccountServiceImpl implements AccountService {
 		return result;
 	}
 
-	@HystrixCommand(fallbackMethod = "getUsersFromCache", commandKey = "accountService")
-	public UserDto getUserById(Long userId) {
-		String url = userService + "/api/user/" + userId;
+	private UserDto getUserById(Long userId) {
+		String url = userService + "user/" + userId;
 		ResponseEntity<UserDto> user = restTemplate.getForEntity(url, UserDto.class);
 		if (user.getStatusCode() == HttpStatus.OK) {
 			return user.getBody();
@@ -182,7 +185,7 @@ public class AccountServiceImpl implements AccountService {
 		return null;
 	}
 
-	@HystrixCommand(fallbackMethod = "getUsersFromCache", commandKey = "accountService")
+	@HystrixCommand(fallbackMethod = "getUserFromCache", commandKey = "accountService")
 	@Transactional
 	public AccountDto addAccount(AccountDto accountDto) {
 		log.debug("Entering addAccount() with details: {}", accountDto.toString());
@@ -219,8 +222,7 @@ public class AccountServiceImpl implements AccountService {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
-	private List<UserDto> getUserFromCache(String userId) {
+	public List<AccountDto> getUserFromCache(List<AccountDto> accountDtos) {
 		return null;
 	}
 }
