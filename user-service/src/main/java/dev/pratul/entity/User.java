@@ -1,4 +1,4 @@
-package dev.pratul.userservice.entity;
+package dev.pratul.entity;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -25,16 +25,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "users", schema = "public")
-@Getter
-@Setter
-@ToString
+@Data
+@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
@@ -88,4 +86,15 @@ public class User {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	@UpdateTimestamp
 	private ZonedDateTime modifiedDate;
+
+	public User(String firstName, String middleInitial, String lastName, String email, Roles[] roles) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.middleInitial = middleInitial;
+		this.email = email;
+		for (Roles role : roles) {
+			this.roles.add(role);
+		}
+
+	}
 }

@@ -1,4 +1,4 @@
-package dev.pratul.userservice.dto;
+package dev.pratul.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,4 +15,13 @@ public class UserDto {
 	private String status;
 	private String lastName;
 	private String email;
+	private RoleDto[] roles;
+	
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Data
+	public class RoleDto {
+		private Long id;
+		private String name;
+	}
 }

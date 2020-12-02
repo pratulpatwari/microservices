@@ -1,6 +1,0 @@
-server.port: 8081
-spring.application.name: movie-catalog-service
-eureka.client.eureka-server-port: 8761
-eureka.client.service-url.defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
-movie.ratings.service.uri: http://ratings-data-service/ratingsdata/
-movie.info.service.uri: http://movie-info-service/movies/

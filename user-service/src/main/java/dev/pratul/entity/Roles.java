@@ -1,4 +1,4 @@
-package dev.pratul.userservice.entity;
+package dev.pratul.entity;
 
 import java.time.ZonedDateTime;
 
@@ -32,11 +32,6 @@ public class Roles {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
 	@SequenceGenerator(name = "seq_gen", sequenceName = "roles_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
-
-//	@Column(name = "name")
-//	@NotBlank
-//	@Enumerated(EnumType.STRING)
-//	private RoleType name;
 
 	@Column(name = "description")
 	@NotBlank

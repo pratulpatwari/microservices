@@ -56,8 +56,16 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public List<AccountDto> getActiveAccountsByUser(String userId) {
 		log.debug("Entering getActiveAccountsByUser() for userId: {}", userId);
-		Set<Accounts> accounts = accountRepository
-				.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(Long.valueOf(userId));
+		UserDto userDto = null;
+		try {
+			userDto = getUserById(Long.valueOf(userId));
+		} catch (Exception ex) {
+			log.error("Exception while fetching the user:");
+		}
+		if (userDto == null) {
+			throw new UserServiceException("User with ID " + userId + " does not exists");
+		}
+		Set<Accounts> accounts = accountRepository.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(userDto.getId());
 		if (accounts == null || accounts.isEmpty()) {
 			log.error("No accounts available for user: {}", userId);
 			throw new NoSuchElementException("No accounts available for user " + userId);

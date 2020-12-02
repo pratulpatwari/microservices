@@ -2,6 +2,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<artifactId>user-service</artifactId>
+	<name>user-service</name>
+	<packaging>jar</packaging>
+	<description>microservice for authentication and user management</description>
+
 	<parent>
 		<groupId>dev.pratul</groupId>
 		<artifactId>Microservices</artifactId>
@@ -9,12 +14,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
-	<artifactId>user-service</artifactId>
-	<name>user-service</name>
-	<description>microservice for authentication and user management</description>
 
 	<properties>
 		<java.version>${java.version}</java.version>
+		<exceptions.version>0.0.1-SNAPSHOT</exceptions.version>
 	</properties>
 
 	<dependencies>
@@ -37,7 +40,7 @@
 		<dependency>
 			<groupId>dev.pratul</groupId>
 			<artifactId>exceptions</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${exceptions.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -48,6 +51,13 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

@@ -1,4 +1,4 @@
-package dev.pratul.userservice.entity;
+package dev.pratul.entity;
 
 import lombok.Getter;
 

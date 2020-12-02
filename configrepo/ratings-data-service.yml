@@ -1,4 +1,0 @@
-server.port: 8083
-spring.application.name: ratings-data-service
-eureka.client.eureka-server-port: 8761
-eureka.client.service-url.defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
