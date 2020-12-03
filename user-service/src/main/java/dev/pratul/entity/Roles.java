@@ -16,15 +16,15 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "roles", schema = "public")
-@Getter
-@Setter
-@ToString
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Roles {
 
 	@Id
@@ -34,7 +34,7 @@ public class Roles {
 	private Long id;
 
 	@Column(name = "description")
-	@NotBlank
+	@NotBlank(message = "Role description cannot be blank")
 	private String description;
 
 	@Column(name = "created_date")
@@ -46,5 +46,9 @@ public class Roles {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	@UpdateTimestamp
 	private ZonedDateTime modifiedDate;
+
+	public Roles(Long id) {
+		this.id = id;
+	}
 
 }

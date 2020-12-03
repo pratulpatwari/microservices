@@ -2,6 +2,7 @@ package dev.pratul.service.impl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -30,14 +31,15 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 
 	@Transactional
 	public UserDto getUserById(Long userId) {
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new NullPointerException("User does not exists"));
+		log.debug("Entering getUserById with userId: {}", userId);
+		User user = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("User does not exists"));
 		UserDto userDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(), user.getStatus(),
 				user.getLastName(), user.getEmail(), null);
 		Set<Roles> userRoles = user.getRoles();
-		UserDto.RoleDto[] rolesDto = userRoles.stream().map(r -> userDto.new RoleDto(r.getId(), r.getDescription()))
+		UserDto.RoleDto[] rolesDto = userRoles.stream().map(r -> new UserDto.RoleDto(r.getId(), r.getDescription()))
 				.toArray(UserDto.RoleDto[]::new);
 		userDto.setRoles(rolesDto);
+		log.debug("Leaving getUserById with userId: {}", userId);
 		return userDto;
 	}
 
@@ -45,23 +47,23 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 	public List<UserDto> getUsersByIds(List<Long> ids) {
 		log.debug("Entering getUsersByIds() with # of users {}", ids.size());
 		List<User> userList = userRepository.findAllById(ids);
-		if (userList != null && userList.size() > 0) {
+		if (userList != null && !userList.isEmpty()) {
 			List<UserDto> userDtos = new LinkedList<>();
 			for (User user : userList) {
 				UserDto userDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
 						user.getStatus(), user.getLastName(), user.getEmail(), null);
 				Set<Roles> userRoles = user.getRoles();
 				UserDto.RoleDto[] rolesDto = userRoles.stream()
-						.map(r -> userDto.new RoleDto(r.getId(), r.getDescription())).toArray(UserDto.RoleDto[]::new);
+						.map(r -> new UserDto.RoleDto(r.getId(), r.getDescription())).toArray(UserDto.RoleDto[]::new);
 				userDto.setRoles(rolesDto);
 				userDtos.add(userDto);
 			}
 			log.debug("Leaving getUsersByIds() with # of users {}", userDtos.size());
 			return userDtos;
 		} else {
+			log.error("User list was empty for the given list of user ids: {}", ids);
 			throw new UserServiceException("No users found !");
 		}
-
 	}
 
 	@Transactional
@@ -89,7 +91,7 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 						user.getStatus(), user.getLastName(), user.getEmail(), null);
 				Set<Roles> userRoles = user.getRoles();
 				UserDto.RoleDto[] rolesDto = userRoles.stream()
-						.map(r -> newUser.new RoleDto(r.getId(), r.getDescription())).toArray(UserDto.RoleDto[]::new);
+						.map(r -> new UserDto.RoleDto(r.getId(), r.getDescription())).toArray(UserDto.RoleDto[]::new);
 				newUser.setRoles(rolesDto);
 				log.debug("Leaving registerUser with userDto: {}", userDto.toString());
 				return newUser;
@@ -98,5 +100,39 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 			throw new IllegalArgumentException("Missing role. User must belong to a role");
 		}
 		return null;
+	}
+
+	@Transactional
+	public UserDto updateUserDetails(UserDto userDto) {
+		log.debug("Entering updateUserDetails() with userDto: {}", userDto);
+		if (userDto.getId() == null) {
+			throw new IllegalArgumentException("Could not identify the user");
+		} else {
+			User user = userRepository.findById(userDto.getId())
+					.orElseThrow(() -> new NoSuchElementException("User not found"));
+			user.setFirstName(userDto.getFirstName());
+			user.setLastName(userDto.getLastName());
+			user.setMiddleInitial(userDto.getMiddleInitial());
+			user.setStatus(userDto.getStatus());
+			if (userDto.getRoles() != null && userDto.getRoles().length > 0) {
+				user.getRoles().clear();
+				for (int i = 0; i < userDto.getRoles().length; i++) {
+					var roleDto = userDto.getRoles()[i];
+					Roles role = roleRepository.findById(roleDto.getId())
+							.orElseThrow(() -> new IllegalArgumentException("Invalid role"));
+					user.getRoles().add(role);
+				}
+			} else {
+				throw new IllegalArgumentException("Roles cannot be blank. Please select atleast one role");
+			}
+			user = userRepository.save(user);
+			UserDto updatedUserDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
+					user.getStatus(), user.getLastName(), user.getEmail(), null);
+			UserDto.RoleDto[] rolesDto = user.getRoles().stream()
+					.map(r -> new UserDto.RoleDto(r.getId(), r.getDescription())).toArray(UserDto.RoleDto[]::new);
+			updatedUserDto.setRoles(rolesDto);
+			log.debug("Leaving updateUserDetails() with userDto: {}", userDto);
+			return updatedUserDto;
+		}
 	}
 }
