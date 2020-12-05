@@ -1,5 +1,12 @@
 server:
   port: 9092
+
+################## Enable all the endpoints for actuator ###############
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
    
 eureka:
   client:

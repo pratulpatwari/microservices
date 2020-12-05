@@ -42,6 +42,10 @@
 			<artifactId>exceptions</artifactId>
 			<version>${exceptions.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 	</dependencies>
 
 	<!-- This plugin tell maven that it is a Spring boot project and launch 

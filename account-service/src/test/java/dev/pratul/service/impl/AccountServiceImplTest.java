@@ -72,7 +72,7 @@ class AccountServiceImplTest {
 
 	@Test
 	public void testGetActiveAccountsByUser() {
-		Mockito.when(accountRepository.findByUserAndStatusTrueAndUserAccount_StatusTrue(Mockito.any())).thenReturn(expected);
+		Mockito.when(accountRepository.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(Mockito.any())).thenReturn(expected);
 		List<AccountDto> result = accountService.getActiveAccountsByUser("1");
 		assertEquals(2, result.size());
 		for (AccountDto account : result) {

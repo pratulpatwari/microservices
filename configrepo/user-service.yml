@@ -1,17 +1,20 @@
 server:
   port: 9090
-  
-spring:
-  thymeleaf:
-    enabled: true
-    prefix: classpath:/templates/
-    suffix: .html
-    cache: false
-    check-template: true
-    encoding: UTF-8
-    servlet:
-      content-type: text/html; charset=utf-8
-    
+
+################## Enable all the endpoints for actuator ###############
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+        
+hibernate:
+  cache:
+    user_second_level_cache: true
+    region:
+      factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+
 eureka:
   client:
     eureka-server-port: 8761
