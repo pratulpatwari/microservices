@@ -1,4 +1,4 @@
-package dev.pratul.service.impl;
+	package dev.pratul.service.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -69,21 +69,21 @@ class AccountServiceImplTest {
 			accountService.getAccountById("2");
 		});
 	}
-
-	@Test
-	public void testGetActiveAccountsByUser() {
-		Mockito.when(accountRepository.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(Mockito.any())).thenReturn(expected);
-		List<AccountDto> result = accountService.getActiveAccountsByUser("1");
-		assertEquals(2, result.size());
-		for (AccountDto account : result) {
-			if (account.getId().equals(1L)) {
-				assertTrue(account.isStatus());
-			}
-			if (account.getId().equals(2L)) {
-				assertFalse(account.isStatus());
-			}
-		}
-	}
+//
+//	@Test
+//	public void testGetActiveAccountsByUser() {
+//		Mockito.when(accountRepository.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(Mockito.any())).thenReturn(expected);
+//		List<AccountDto> result = accountService.getActiveAccountsByUser("1");
+//		assertEquals(2, result.size());
+//		for (AccountDto account : result) {
+//			if (account.getId().equals(1L)) {
+//				assertTrue(account.isStatus());
+//			}
+//			if (account.getId().equals(2L)) {
+//				assertFalse(account.isStatus());
+//			}
+//		}
+//	}
 
 //	@Test
 //	public void testGetAllAccountsByUser() {

@@ -54,6 +54,29 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Transactional
+	public AccountDto getAccountDetailsById(String id) {
+		log.debug("Entering getAccountDetailsById() {}", id);
+		Accounts account = accountRepository.findById(Long.valueOf(id))
+				.orElseThrow(() -> new NullPointerException("Account not found"));
+		AccountDto accountDto = new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
+				account.isStatus());
+		for (UserAccount userAccount : account.getUserAccount()) {
+			try {
+				if (userAccount.isStatus()) {
+					User user = userAccount.getUser();
+					accountDto.getUsers().add(new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
+							user.getStatus(), user.getLastName(), user.getEmail()));
+				}
+			} catch (Exception ex) {
+				log.error("Exception while reading the user account ID: {}. Exception: {}", userAccount.getId(),
+						ex.getMessage());
+			}
+		}
+		log.debug("Leaving getAccountDetailsById() {} with # of users: {}", id, accountDto.getUsers().size());
+		return accountDto;
+	}
+
+	@Transactional
 	public List<AccountDto> getActiveAccountsByUser(String userId) {
 		log.debug("Entering getActiveAccountsByUser() for userId: {}", userId);
 		UserDto userDto = null;

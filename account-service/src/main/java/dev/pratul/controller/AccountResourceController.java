@@ -31,7 +31,14 @@ public class AccountResourceController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<AccountDto> getAccountById(@PathVariable(value = "id") String id) {
-		return new ResponseEntity<>(accountService.getAccountById(id), HttpStatus.OK);
+		AccountDto accountDto = accountService.getAccountById(id);
+		return new ResponseEntity<>(accountDto, accountDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+	}
+
+	@GetMapping("/details/{id}")
+	public ResponseEntity<AccountDto> getAccountDetailsById(@PathVariable(value = "id") String id) {
+		AccountDto accountDto = accountService.getAccountDetailsById(id);
+		return new ResponseEntity<>(accountDto, accountDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
 	}
 
 	@PutMapping("/{accountId}")

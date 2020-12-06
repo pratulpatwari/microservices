@@ -32,6 +32,9 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 	@Transactional
 	public UserDto getUserById(Long userId) {
 		log.debug("Entering getUserById with userId: {}", userId);
+		if (userId == null) {
+			throw new IllegalArgumentException("No user provided.");
+		}
 		User user = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("User does not exists"));
 		UserDto userDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(), user.getStatus(),
 				user.getLastName(), user.getEmail(), null);
@@ -45,9 +48,12 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 
 	@Transactional
 	public List<UserDto> getUsersByIds(List<Long> ids) {
-		log.debug("Entering getUsersByIds() with # of users {}", ids.size());
+		log.debug("Entering getUsersByIds() with # of users {}", ids != null ? ids.size() : null);
+		if (ids == null || ids.isEmpty()) {
+			throw new IllegalArgumentException("No users provided to be searched");
+		}
 		List<User> userList = userRepository.findAllById(ids);
-		if (userList != null && !userList.isEmpty()) {
+		if (!userList.isEmpty()) {
 			List<UserDto> userDtos = new LinkedList<>();
 			for (User user : userList) {
 				UserDto userDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
@@ -86,7 +92,7 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 				log.error("Exception while saving the user object: {}", ex.getMessage());
 				throw new IllegalArgumentException("Invalid request. Please contact support team");
 			}
-			if (user != null && user.getId() != null) {
+			if (user.getId() != null) {
 				UserDto newUser = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
 						user.getStatus(), user.getLastName(), user.getEmail(), null);
 				Set<Roles> userRoles = user.getRoles();

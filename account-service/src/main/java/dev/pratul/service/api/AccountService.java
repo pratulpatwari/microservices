@@ -13,6 +13,11 @@ public interface AccountService {
 	public AccountDto getAccountById(String accountId);
 
 	/*
+	 * Fetch the account and all users who have access to that account
+	 */
+	public AccountDto getAccountDetailsById(String accountId);
+
+	/*
 	 * Fetch only the active accounts for the mentioned user
 	 */
 	public List<AccountDto> getActiveAccountsByUser(String userId);

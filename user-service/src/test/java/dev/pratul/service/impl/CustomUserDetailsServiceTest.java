@@ -94,13 +94,22 @@ class CustomUserDetailsServiceTest {
 		assertThrows(NullPointerException.class, () -> {
 			userRepository.findById(1L);
 		});
+		Mockito.when(userRepository.findById(null)).thenReturn(null);
+		assertThrows(IllegalArgumentException.class, () -> {
+			userService.getUserById(null);
+		}, "No user provided.");
 	}
 
 	@Test
 	void testGetUsersByIds() {
-		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(null);
+		List<Long> userList = Stream.of(Long.valueOf(1)).collect(Collectors.toList());
+		Mockito.when(userRepository.findAllById(null)).thenReturn(null);
+		assertThrows(IllegalArgumentException.class, () -> {
+			userService.getUsersByIds(null);
+		}, "No users provided to be searched");
+		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(new ArrayList<>());
 		assertThrows(UserServiceException.class, () -> {
-			userService.getUsersByIds(Stream.of(1L).collect(Collectors.toList()));
+			userService.getUsersByIds(userList);
 		}, "No users found !");
 
 		Mockito.when(userRepository.findAllById(Mockito.anyIterable()))
@@ -123,8 +132,8 @@ class CustomUserDetailsServiceTest {
 
 		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(users);
 		List<Long> ids1 = new ArrayList<>();
-		ids.add(1L);
-		ids.add(2L);
+		ids1.add(Long.valueOf(1));
+		ids1.add(Long.valueOf(2));
 		List<UserDto> multipleUserDtos = userService.getUsersByIds(ids1);
 		assertEquals(2, multipleUserDtos.size());
 		assertEquals(1L, multipleUserDtos.get(0).getId());

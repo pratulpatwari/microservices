@@ -13,7 +13,6 @@ public class CustomHttpTraceFilter extends HttpTraceFilter {
 
 	public CustomHttpTraceFilter(HttpTraceRepository repository, HttpExchangeTracer tracer) {
 		super(repository, tracer);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

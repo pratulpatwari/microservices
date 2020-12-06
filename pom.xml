@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -22,6 +22,7 @@
 		<spring.version>2.2.6.RELEASE</spring.version>
 		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
 		<postgresql>42.2.9</postgresql>
+		<sonar.version>3.6.0.1398</sonar.version>
 	</properties>
 
 	<modules>
@@ -131,6 +132,15 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar.version}</version>
+			</plugin>
+		</plugins>
+	</build>
 	<!-- distribution of projects in nexus repository  -->
 	<distributionManagement>
 		<repository>
@@ -144,5 +154,4 @@
 			<url>http://localhost:8081/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-
 </project>
