@@ -46,7 +46,16 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public AccountDto getAccountById(String id) {
 		log.debug("Entering getAccountById() {}", id);
-		Accounts account = accountRepository.findById(Long.valueOf(id))
+		if (id == null) {
+			throw new IllegalArgumentException("No account provided");
+		}
+		Long accId = null;
+		try {
+			accId = Long.valueOf(id);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Invalid account provided");
+		}
+		Accounts account = accountRepository.findById(accId)
 				.orElseThrow(() -> new NullPointerException("Account not found"));
 		log.debug("Leaving getAccountById() {}", id);
 		return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(), account.isStatus(),
@@ -56,6 +65,9 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public AccountDto getAccountDetailsById(String id) {
 		log.debug("Entering getAccountDetailsById() {}", id);
+		if (id == null) {
+			throw new IllegalArgumentException("No account provided");
+		}
 		Accounts account = accountRepository.findById(Long.valueOf(id))
 				.orElseThrow(() -> new NullPointerException("Account not found"));
 		AccountDto accountDto = new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
@@ -86,10 +98,10 @@ public class AccountServiceImpl implements AccountService {
 			log.error("Exception while fetching the user:");
 		}
 		if (userDto == null) {
-			throw new UserServiceException("User with ID " + userId + " does not exists");
+			throw new UserServiceException("Could not find the requested user");
 		}
 		Set<Accounts> accounts = accountRepository.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(userDto.getId());
-		if (accounts == null || accounts.isEmpty()) {
+		if (accounts.isEmpty()) {
 			log.error("No accounts available for user: {}", userId);
 			throw new NoSuchElementException("No accounts available for user " + userId);
 		} else {
