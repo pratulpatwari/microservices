@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -124,8 +125,14 @@ public class AccountServiceImpl implements AccountService {
 		} else {
 			List<AccountDto> dto = new LinkedList<>();
 			for (Accounts acc : accounts) {
-				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(),
-						acc.getUserAccount().stream().findFirst().get().isStatus(), null));
+				boolean status = false;
+				Optional<UserAccount> userAccount = acc.getUserAccount().stream().findFirst();
+				if (!userAccount.isPresent()) {
+					log.debug("No user assigned to this account");
+				} else {
+					status = userAccount.get().isStatus();
+				}
+				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), status, null));
 			}
 			log.debug("Leaving getAllAccountsByUser(). # of accounts {} for user {}", dto.size(), userId);
 			return dto;
@@ -170,7 +177,8 @@ public class AccountServiceImpl implements AccountService {
 			Set<UserAccount> userAccount = new HashSet<>();
 			if (accDto != null && !accDto.getUsers().isEmpty()) {
 				for (UserDto user : accDto.getUsers()) {
-					account.getUserAccount().stream().filter(u -> u.getUser().getId() == user.getId()).findAny()
+					account.getUserAccount().stream()
+							.filter(u -> u.getUser().getId().longValue() == user.getId().longValue()).findAny()
 							.ifPresentOrElse(u -> {
 								UserDto userDto = getUserById(user.getId());
 								log.debug("User Object: ", userDto);
