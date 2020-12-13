@@ -12,6 +12,7 @@ import org.hibernate.annotations.NaturalIdCache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -21,6 +22,7 @@ import lombok.EqualsAndHashCode;
 @NaturalIdCache
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @EqualsAndHashCode
+@AllArgsConstructor
 public class User {
 
 	@Id

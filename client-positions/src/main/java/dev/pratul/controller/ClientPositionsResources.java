@@ -2,7 +2,6 @@ package dev.pratul.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,19 +14,14 @@ import dev.pratul.service.api.ClientPositionService;
 @RequestMapping("/api/")
 public class ClientPositionsResources {
 
-	@Autowired
 	private ClientPositionService clientPositionService;
+	
+	public ClientPositionsResources(ClientPositionService clientPositionService) {
+		this.clientPositionService = clientPositionService;
+	}
 
 	@GetMapping("{userId}")
 	public List<ClientPosition> getClientPositions(@PathVariable("userId") String userId) {
-		List<ClientPosition> cientPositions = clientPositionService.getClientPositions(userId);
-		return cientPositions;
+		return clientPositionService.getClientPositions(userId);
 	}
-
-	@GetMapping("lots/{clientId}")
-	public String getClientPostionsLots(@PathVariable("clientId") String clientId) {
-		System.out.println("Lots for client:  " + clientId);
-		return "Lot: " + clientId;
-	}
-
 }

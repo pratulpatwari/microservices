@@ -1,8 +1,8 @@
 package dev.pratul.service.impl;
 
+import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
@@ -16,16 +16,17 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class AccountServiceImpl implements IAccountService {
 
-	@Autowired
-	private AccountService accountService;
+	private final AccountService accountService;
+	
+	public AccountServiceImpl(AccountService accountService) {
+		this.accountService = accountService;
+	}
 
 	@Override
 	@HystrixCommand(fallbackMethod = "getFallbackAccountByUserId", commandKey = "zuulGateway")
 	public Set<Account> getAccountByUserId(String userId) {
 		log.info("Entering getAccountByUserId() for user {}", userId);
 		Set<Account> accounts = accountService.getAccountByUserId(userId);
-		Set<Account> allAccounts = accountService.getAllAccountsByUser(userId);
-		
 		log.info("Leaving getAccountByUserId() for user {}", userId);
 		return accounts;
 	}
@@ -37,7 +38,7 @@ public class AccountServiceImpl implements IAccountService {
 				userId);
 
 		// make a call to server cache to return the last fetched account-service
-		return null;
+		return new HashSet<>();
 	}
 
 }

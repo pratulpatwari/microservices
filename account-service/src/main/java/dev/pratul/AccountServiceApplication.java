@@ -1,5 +1,6 @@
 package dev.pratul;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,11 +49,17 @@ public class AccountServiceApplication {
 	@Bean(name = "transactionManager")
 	public PlatformTransactionManager transactionManager(
 			@Qualifier("entityManagerFactory") LocalContainerEntityManagerFactoryBean entityManagerFactory) {
-		return new JpaTransactionManager(entityManagerFactory.getObject());
+		if (entityManagerFactory != null) {
+			EntityManagerFactory entityManager = entityManagerFactory.getObject();
+			if (entityManager != null) {
+				return new JpaTransactionManager(entityManager);
+			}
+		}
+		return null;
 	}
 
 	@Bean
-    public HttpTraceRepository httpTraceRepository() {
-        return new InMemoryHttpTraceRepository();
-    }
+	public HttpTraceRepository httpTraceRepository() {
+		return new InMemoryHttpTraceRepository();
+	}
 }

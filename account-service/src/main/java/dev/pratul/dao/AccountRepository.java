@@ -17,6 +17,8 @@ import dev.pratul.entity.User;
 public interface AccountRepository extends JpaRepository<Accounts, Long> {
 
 	public Set<Accounts> findByIdIn(Set<Long> ids);
+	
+	public Set<Accounts> findByIdIn(Long[] ids);
 
 	public Optional<Accounts> findByAccountId(String accountId);
 	
@@ -26,11 +28,11 @@ public interface AccountRepository extends JpaRepository<Accounts, Long> {
 
 	public Set<Accounts> findByUser(User user);
 
-	public Set<Accounts> findByUserAndStatusTrueAndUserAccount_StatusTrue(User user);
+	public Set<Accounts> findByUserAndStatusTrueAndUserAccountStatusTrue(User user);
 
-	public Set<Accounts> findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(Long userId);
+	public Set<Accounts> findByUserIdAndStatusTrueAndUserAccountStatusTrue(Long userId);
 
-	public Set<Accounts> findByAccountIdInAndUser_IdIn(List<String> accountId, List<Long> userId);
+	public Set<Accounts> findByAccountIdInAndUserIdIn(List<String> accountId, List<Long> userId);
 
 	@Modifying
 	@Query("update Accounts acc set acc.status=:status where acc.id=:accountId")

@@ -1,13 +1,9 @@
 package dev.pratul.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,18 +12,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.pratul.dto.AccountDto;
 import dev.pratul.service.api.AccountService;
 
-@RefreshScope
 @RestController
 @RequestMapping("/api/account")
 public class AccountResourceController {
 
-	@Autowired
-	private AccountService accountService;
+	private final AccountService accountService;
+
+	public AccountResourceController(AccountService accountService) {
+		this.accountService = accountService;
+	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<AccountDto> getAccountById(@PathVariable(value = "id") String id) {
@@ -41,10 +40,10 @@ public class AccountResourceController {
 		return new ResponseEntity<>(accountDto, accountDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
 	}
 
-	@PutMapping("/{accountId}")
-	public ResponseEntity<AccountDto> deactivateAccount(@PathVariable(value = "accountId") String accountId) {
-		List<AccountDto> dto = accountService.updateAccountStatus(Stream.of(accountId).collect(Collectors.toList()));
-		return new ResponseEntity<>(dto.get(0),
+	@PutMapping("/deactive")
+	public ResponseEntity<List<AccountDto>> deactivateAccount(@RequestParam("accounts") String accounts) {
+		List<AccountDto> dto = accountService.deactivateAccount(accounts);
+		return new ResponseEntity<>(dto,
 				dto != null && !dto.isEmpty() ? HttpStatus.OK : HttpStatus.PRECONDITION_FAILED);
 	}
 
@@ -61,9 +60,10 @@ public class AccountResourceController {
 	}
 
 	@PutMapping("/user")
-	public ResponseEntity<List<AccountDto>> deactivateAccount(@RequestBody @Valid List<AccountDto> accountDto) {
-		List<AccountDto> deactiveAccount = accountService.updateUserAccount(accountDto);
-		return new ResponseEntity<>(deactiveAccount, deactiveAccount != null ? HttpStatus.OK : HttpStatus.NOT_MODIFIED);
+	public ResponseEntity<List<AccountDto>> updateUserAccount(@RequestBody @Valid List<AccountDto> accountDto) {
+		List<AccountDto> updatedUserAccounts = accountService.updateUserAccount(accountDto);
+		return new ResponseEntity<>(updatedUserAccounts,
+				updatedUserAccounts != null ? HttpStatus.OK : HttpStatus.NOT_MODIFIED);
 	}
 
 	@PostMapping("/add")

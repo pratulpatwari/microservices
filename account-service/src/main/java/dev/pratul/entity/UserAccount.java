@@ -1,6 +1,5 @@
 package dev.pratul.entity;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import javax.persistence.Column;
@@ -26,12 +25,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "user_accounts_map", schema = "public")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class UserAccount implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1328570349868916192L;
+public class UserAccount {
 
 	@Id
 	@Column(name = "id")

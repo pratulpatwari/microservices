@@ -35,7 +35,7 @@ public interface AccountService {
 	 * previously assigned users. If you want to activate the account for each user,
 	 * refer updateUserAccount
 	 */
-	public List<AccountDto> updateAccountStatus(List<String> accountId);
+	public List<AccountDto> deactivateAccount(String account);
 
 	/*
 	 * Activate/Deactivate the account in DB for the mentioned user. Only user with

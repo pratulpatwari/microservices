@@ -26,9 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 class ClientPositionServiceImpl implements ClientPositionService {
 
 	private final RestTemplate restTemplate;
-
 	private final ClientPositionRepository clientPositionRepository;
-
 	private final ServiceConfig serviceConfig;
 
 	public ClientPositionServiceImpl(ClientPositionRepository clientPositionRepository, ServiceConfig serviceConfig,
@@ -42,28 +40,31 @@ class ClientPositionServiceImpl implements ClientPositionService {
 	@Transactional
 	public List<ClientPosition> getClientPositions(String clientId) {
 		log.info("Entering getClientPositions() for clientId: {}", clientId);
-		String accountServiceUrl = null;
-		ResponseEntity<Accounts[]> accounts = null;
-		List<Accounts> accountList = new ArrayList<Accounts>();
-		List<ClientPosition> clientPositions = null;
+		List<ClientPosition> clientPositions = new ArrayList<>();
+		ResponseEntity<Accounts[]> accounts = getAccountsByIds(clientId);
+		if (accounts != null && accounts.getBody() != null) {
+			List<Accounts> accountList = new ArrayList<>(List.of(accounts.getBody()));
+			clientPositions.addAll(clientPositionRepository.findByAccountsInAndCreateDateBetween(accountList,
+					ZonedDateTime.now().minusDays(7).with(LocalTime.MIN), ZonedDateTime.now()));
+		} else {
+			throw new RestClientException(
+					"Call to account-service failed. Calling cache to return last fetched values");
+		}
+		log.info("Leaving getClientPositions() for clientId: {}, Total positions for clients: {}", clientId,
+				clientPositions.size());
+		return clientPositions;
+	}
+
+	private ResponseEntity<Accounts[]> getAccountsByIds(String clientId) {
 		try {
-			accountServiceUrl = serviceConfig.getAccount() + "user/" + clientId;
-			accounts = restTemplate.getForEntity(accountServiceUrl, Accounts[].class);
+			String accountServiceUrl = serviceConfig.getAccount() + "user/" + clientId;
+			return restTemplate.getForEntity(accountServiceUrl, Accounts[].class);
 		} catch (RestClientException ex) {
 			log.error(
 					"Error while fetching the accounts from account-service for user {}. The api called for account-service is: {}. Exception: {}",
-					clientId, accountServiceUrl, ex);
+					clientId, ex);
 		}
-		if (accounts != null) {
-			accountList = new ArrayList<>(List.of(accounts.getBody()));
-			clientPositions = clientPositionRepository.findByAccountsInAndCreateDateBetween(accountList,
-					ZonedDateTime.now().minusDays(7).with(LocalTime.MIN), ZonedDateTime.now());
-		} else
-			throw new RestClientException(
-					"Call to account-service failed. Calling cache to return last fetched values");
-		log.info("Leaving getClientPositions() for clientId: {}, Total active accounts for clients: {}", clientId,
-				accountList.size());
-		return clientPositions;
+		return null;
 	}
 
 	@HystrixCommand(fallbackMethod = "getFallbackClientPositionByAccount", commandKey = "clientPosition")
@@ -92,7 +93,7 @@ class ClientPositionServiceImpl implements ClientPositionService {
 				clientId);
 
 		// make a call to server cache to return the last fetched client-positions
-		return null;
+		return new ArrayList<>();
 	}
 
 	/*
@@ -108,7 +109,7 @@ class ClientPositionServiceImpl implements ClientPositionService {
 				clientId, accountId);
 
 		// make a call to server cache to return the last fetched client-positions
-		return null;
+		return new ArrayList<>();
 	}
 
 }

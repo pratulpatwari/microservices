@@ -60,6 +60,8 @@ class AccountServiceImplTest {
 		account.setUser(Stream.of(user).collect(Collectors.toSet()));
 		userAccount.setAccounts(account);
 		userAccount.setUser(user);
+		userAccount.setStatus(true);
+		account.setUserAccount(Stream.of(userAccount).collect(Collectors.toSet()));
 
 		deactiveAccount.setId(2L);
 		deactiveAccount.setStatus(false);
@@ -70,7 +72,7 @@ class AccountServiceImplTest {
 	}
 
 	@Test
-	public void testGetAccountById() {
+	void testGetAccountById() {
 		Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
 		AccountDto result = accountService.getAccountById(String.valueOf(account.getId()));
 		assertEquals(1, result.getId());
@@ -87,7 +89,28 @@ class AccountServiceImplTest {
 	}
 
 	@Test
-	public void testGetActiveAccountsByUser() {
+	void testAccountDetailsById() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			accountService.getAccountDetailsById(null);
+		}, "No account provided");
+		Mockito.when(accountRepository.findById(Mockito.anyLong())).thenReturn(null);
+		assertThrows(NullPointerException.class, () -> {
+			accountService.getAccountDetailsById("1");
+		}, "No account provided");
+		Mockito.when(accountRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(account));
+		AccountDto accountDto = accountService.getAccountDetailsById("1");
+		assertEquals(account.getId(), accountDto.getId());
+		assertEquals(1, accountDto.getUsers().size());
+		account.getUserAccount().forEach(u -> {
+			u.setStatus(false);
+		});
+		AccountDto accountDto1 = accountService.getAccountDetailsById("1");
+		assertEquals(1, accountDto.getUsers().size());
+		assertEquals(0, accountDto1.getUsers().size());
+	}
+
+	@Test
+	void testGetActiveAccountsByUser() {
 		UserDto userDto = new UserDto();
 		ResponseEntity<Object> responseEntity = new ResponseEntity<Object>(userDto, HttpStatus.OK);
 		Mockito.when(restTemplate.getForEntity(Mockito.anyString(), Mockito.any())).thenReturn(null);
@@ -98,12 +121,12 @@ class AccountServiceImplTest {
 			accountService.getActiveAccountsByUser(null);
 		}, "Could not find the requested user");
 		Mockito.when(restTemplate.getForEntity(Mockito.anyString(), Mockito.any())).thenReturn(responseEntity);
-		Mockito.when(accountRepository.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(Mockito.any()))
+		Mockito.when(accountRepository.findByUserIdAndStatusTrueAndUserAccountStatusTrue(Mockito.any()))
 				.thenReturn(new HashSet<>());
 		assertThrows(NoSuchElementException.class, () -> {
 			accountService.getActiveAccountsByUser("1");
 		}, "No accounts available for user 1");
-		Mockito.when(accountRepository.findByUser_IdAndStatusTrueAndUserAccount_StatusTrue(Mockito.any()))
+		Mockito.when(accountRepository.findByUserIdAndStatusTrueAndUserAccountStatusTrue(Mockito.any()))
 				.thenReturn(accounts);
 		List<AccountDto> result = accountService.getActiveAccountsByUser("1");
 		assertEquals(2, result.size());
@@ -117,14 +140,10 @@ class AccountServiceImplTest {
 		}
 	}
 
-	@Test
-	public void testAccountDetailsById() {
-
-	}
-
 //	@Test
-//	public void testGetAllAccountsByUser() {
-//		Mockito.when(accountRepository.findByUsers(Mockito.any())).thenReturn(expected);
+//	void testGetAllAccountsByUser() {
+//		Mockito.when(accountRepository.findByUser(Mockito.any()))
+//				.thenReturn(Stream.of(account).collect(Collectors.toSet()));
 //		List<AccountDto> result = accountService.getAllAccountsByUser(String.valueOf(user.getId()));
 //		assertEquals(2, result.size());
 //	}
