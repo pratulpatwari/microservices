@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
@@ -48,5 +49,21 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 		ErrorMessage errorMessage = new ErrorMessage(ZonedDateTime.now(), HttpStatus.NOT_FOUND.value(),
 				Arrays.asList(exception.getMessage()));
 		return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ErrorMessage> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException exception,
+			HttpServletRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(ZonedDateTime.now(), HttpStatus.BAD_REQUEST.value(),
+				Arrays.asList(exception.getMessage()));
+		return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(value = NumberFormatException.class)
+	public ResponseEntity<ErrorMessage> handleNumberFormatException(NumberFormatException exception,
+			HttpServletRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(ZonedDateTime.now(), HttpStatus.NOT_ACCEPTABLE.value(),
+				Arrays.asList(exception.getMessage()));
+		return new ResponseEntity<>(errorMessage, HttpStatus.NOT_ACCEPTABLE);
 	}
 }

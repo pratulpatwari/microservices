@@ -1,5 +1,6 @@
 package dev.pratul.service.impl;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -35,7 +36,8 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 		if (userId == null) {
 			throw new IllegalArgumentException("No user provided.");
 		}
-		User user = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("User does not exists"));
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new NoSuchElementException("User does not exists"));
 		UserDto userDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(), user.getStatus(),
 				user.getLastName(), user.getEmail(), null);
 		Set<Roles> userRoles = user.getRoles();
@@ -52,6 +54,20 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 		if (ids == null || ids.isEmpty()) {
 			throw new IllegalArgumentException("No users provided to be searched");
 		}
+		return getUsersFromDB(ids);
+	}
+
+	@Transactional
+	public List<UserDto> getUsersByUserIds(String ids) {
+		log.debug("Entering getUsersByIds() with # of users {}", ids);
+		if (ids == null || ids.isEmpty()) {
+			throw new IllegalArgumentException("No users provided to be searched");
+		}
+		List<Long> idLongList = convertStringToLong(ids);
+		return getUsersFromDB(idLongList);
+	}
+
+	private List<UserDto> getUsersFromDB(List<Long> ids) {
 		List<User> userList = userRepository.findAllById(ids);
 		if (!userList.isEmpty()) {
 			List<UserDto> userDtos = new LinkedList<>();
@@ -70,6 +86,20 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 			log.error("User list was empty for the given list of user ids: {}", ids);
 			throw new UserServiceException("No users found !");
 		}
+	}
+
+	private List<Long> convertStringToLong(String stringValue) {
+		List<Long> idLongList = new ArrayList<>();
+		String[] idString = stringValue.split(",");
+		for (int i = 0; i < idString.length; i++) {
+			try {
+				idLongList.add(Long.valueOf(idString[i]));
+			} catch (NumberFormatException ex) {
+				log.error("Exception while parsing the user id: {}. Exception: {}", idString[i], ex.getMessage());
+				throw new NumberFormatException("Invalid user id " + idString[i]);
+			}
+		}
+		return idLongList;
 	}
 
 	@Transactional

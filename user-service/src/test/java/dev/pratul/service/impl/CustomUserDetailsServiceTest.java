@@ -141,6 +141,43 @@ class CustomUserDetailsServiceTest {
 	}
 
 	@Test
+	void testGetUsersByUserIds() {
+		Mockito.when(userRepository.findAllById(null)).thenReturn(null);
+		assertThrows(IllegalArgumentException.class, () -> {
+			userService.getUsersByUserIds(null);
+		}, "No users provided to be searched");
+		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(new ArrayList<>());
+		assertThrows(UserServiceException.class, () -> {
+			userService.getUsersByUserIds("1,2,3,4");
+		}, "No users found !");
+
+		Mockito.when(userRepository.findAllById(Mockito.anyIterable()))
+				.thenReturn(Stream.of(user).collect(Collectors.toList()));
+		List<UserDto> userDtos = userService.getUsersByUserIds("1");
+		assertEquals(1, userDtos.size());
+		assertEquals("Pratul", userDtos.get(0).getFirstName());
+		assertEquals(1, userDtos.get(0).getRoles().length);
+
+		Mockito.when(userRepository.findAllById(Mockito.anyIterable()))
+				.thenReturn(Stream.of(user1).collect(Collectors.toList()));
+		List<UserDto> allUserDtos = userService.getUsersByUserIds("1,3");
+		assertEquals(1, allUserDtos.size());
+		assertEquals(2L, allUserDtos.get(0).getId());
+		assertEquals("John", allUserDtos.get(0).getFirstName());
+		assertEquals("Business", allUserDtos.get(0).getRoles()[0].getName());
+
+		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(users);
+		List<UserDto> multipleUserDtos = userService.getUsersByUserIds("1,2");
+		assertEquals(2, multipleUserDtos.size());
+		assertEquals(1L, multipleUserDtos.get(0).getId());
+		assertEquals(2L, multipleUserDtos.get(1).getId());
+		
+		assertThrows(NumberFormatException.class, () -> {
+			userService.getUsersByUserIds("1abc");
+		});
+	}
+
+	@Test
 	void testRegisterUser() {
 		assertThrows(IllegalArgumentException.class, () -> {
 			userService.registerUser(userDto);

@@ -18,6 +18,12 @@ public interface ICustomUserDetailsService {
 	UserDto getUserById(Long userId);
 
 	/*
+	 * Fetch the list of all users requested using query parameter. If multiple
+	 * users are to be requested, id needs to be sent with comma separated values
+	 */
+	List<UserDto> getUsersByUserIds(String ids);
+
+	/*
 	 * Fetch the list of all users using their Ids
 	 */
 	List<UserDto> getUsersByIds(List<Long> ids);

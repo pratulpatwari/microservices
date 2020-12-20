@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.pratul.dto.UserDto;
@@ -31,6 +32,12 @@ public class UserRestController {
 	public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long id) {
 		UserDto user = userService.getUserById(id);
 		return new ResponseEntity<>(user, user != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+	}
+
+	@GetMapping
+	public ResponseEntity<List<UserDto>> getUserById(@RequestParam("id") String id) {
+		List<UserDto> user = userService.getUsersByUserIds(id);
+		return new ResponseEntity<>(user, !user.isEmpty() ? HttpStatus.OK : HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping
