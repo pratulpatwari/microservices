@@ -23,6 +23,7 @@
 		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
 		<postgresql>42.2.9</postgresql>
 		<sonar.version>3.6.0.1398</sonar.version>
+		<jacoco-version>0.8.5</jacoco-version>
 	</properties>
 
 	<modules>

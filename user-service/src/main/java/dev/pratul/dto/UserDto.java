@@ -24,12 +24,4 @@ public class UserDto {
 	private String email;
 	@NotNull(message = "Roles cannot be blank")
 	private RoleDto[] roles;
-
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@Data
-	public static class RoleDto {
-		private Long id;
-		private String name;
-	}
 }

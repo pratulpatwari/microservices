@@ -75,7 +75,7 @@ public class User {
 	@JoinTable(name = "users_role_map", schema = "public", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "role_id", referencedColumnName = "id") })
-	private Set<Roles> roles = new HashSet<>();
+	private Set<Role> roles = new HashSet<>();
 
 	@Column(name = "created_date")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
@@ -87,12 +87,12 @@ public class User {
 	@UpdateTimestamp
 	private ZonedDateTime modifiedDate;
 
-	public User(String firstName, String middleInitial, String lastName, String email, Roles[] roles) {
+	public User(String firstName, String middleInitial, String lastName, String email, Role[] roles) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.middleInitial = middleInitial;
 		this.email = email;
-		for (Roles role : roles) {
+		for (Role role : roles) {
 			this.roles.add(role);
 		}
 

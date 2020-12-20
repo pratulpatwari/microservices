@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-public class Roles {
+public class Role {
 
 	@Id
 	@Column(name = "id")
@@ -50,7 +50,7 @@ public class Roles {
 	@UpdateTimestamp
 	private ZonedDateTime modifiedDate;
 
-	public Roles(Long id) {
+	public Role(Long id) {
 		this.id = id;
 	}
 

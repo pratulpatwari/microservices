@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
 import dev.pratul.service.api.ICustomUserDetailsService;
 
@@ -56,5 +57,10 @@ public class UserRestController {
 	public ResponseEntity<UserDto> updateUserDetails(@RequestBody @Valid UserDto userDto) {
 		UserDto updatedUserDto = userService.updateUserDetails(userDto);
 		return new ResponseEntity<>(updatedUserDto, updatedUserDto != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+	}
+
+	@GetMapping("/roles")
+	public ResponseEntity<RoleDto[]> getAllRoles() {
+		return new ResponseEntity<>(userService.getAllRoles(), HttpStatus.OK);
 	}
 }

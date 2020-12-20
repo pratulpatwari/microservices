@@ -2,9 +2,15 @@ package dev.pratul.service.api;
 
 import java.util.List;
 
+import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
 
 public interface ICustomUserDetailsService {
+
+	/*
+	 * Return the list of all available roles
+	 */
+	RoleDto[] getAllRoles();
 
 	/*
 	 * Register a new user using the DTO object. Status is by default marked as

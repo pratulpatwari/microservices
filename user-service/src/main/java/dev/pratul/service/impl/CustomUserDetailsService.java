@@ -12,8 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.pratul.UserServiceException;
 import dev.pratul.dao.RolesRepository;
 import dev.pratul.dao.UserRepository;
+import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
-import dev.pratul.entity.Roles;
+import dev.pratul.entity.Role;
 import dev.pratul.entity.User;
 import dev.pratul.service.api.ICustomUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +41,9 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 				.orElseThrow(() -> new NoSuchElementException("User does not exists"));
 		UserDto userDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(), user.getStatus(),
 				user.getLastName(), user.getEmail(), null);
-		Set<Roles> userRoles = user.getRoles();
-		UserDto.RoleDto[] rolesDto = userRoles.stream().map(r -> new UserDto.RoleDto(r.getId(), r.getDescription()))
-				.toArray(UserDto.RoleDto[]::new);
+		Set<Role> userRoles = user.getRoles();
+		RoleDto[] rolesDto = userRoles.stream().map(r -> new RoleDto(r.getId(), r.getDescription()))
+				.toArray(RoleDto[]::new);
 		userDto.setRoles(rolesDto);
 		log.debug("Leaving getUserById with userId: {}", userId);
 		return userDto;
@@ -74,9 +75,9 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 			for (User user : userList) {
 				UserDto userDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
 						user.getStatus(), user.getLastName(), user.getEmail(), null);
-				Set<Roles> userRoles = user.getRoles();
-				UserDto.RoleDto[] rolesDto = userRoles.stream()
-						.map(r -> new UserDto.RoleDto(r.getId(), r.getDescription())).toArray(UserDto.RoleDto[]::new);
+				Set<Role> userRoles = user.getRoles();
+				RoleDto[] rolesDto = userRoles.stream().map(r -> new RoleDto(r.getId(), r.getDescription()))
+						.toArray(RoleDto[]::new);
 				userDto.setRoles(rolesDto);
 				userDtos.add(userDto);
 			}
@@ -93,7 +94,7 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 		String[] idString = stringValue.split(",");
 		for (int i = 0; i < idString.length; i++) {
 			try {
-				idLongList.add(Long.valueOf(idString[i]));
+				idLongList.add(Long.valueOf(idString[i].trim()));
 			} catch (NumberFormatException ex) {
 				log.error("Exception while parsing the user id: {}. Exception: {}", idString[i], ex.getMessage());
 				throw new NumberFormatException("Invalid user id " + idString[i]);
@@ -110,7 +111,7 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 			for (int i = 0; i < roleIds.length; i++) {
 				roleIds[i] = userDto.getRoles()[i].getId();
 			}
-			Roles[] roles = roleRepository.findByIdIn(roleIds);
+			Role[] roles = roleRepository.findByIdIn(roleIds);
 			if (roles == null) {
 				throw new IllegalArgumentException("Invalid roles");
 			}
@@ -125,9 +126,9 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 			if (user.getId() != null) {
 				UserDto newUser = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
 						user.getStatus(), user.getLastName(), user.getEmail(), null);
-				Set<Roles> userRoles = user.getRoles();
-				UserDto.RoleDto[] rolesDto = userRoles.stream()
-						.map(r -> new UserDto.RoleDto(r.getId(), r.getDescription())).toArray(UserDto.RoleDto[]::new);
+				Set<Role> userRoles = user.getRoles();
+				RoleDto[] rolesDto = userRoles.stream().map(r -> new RoleDto(r.getId(), r.getDescription()))
+						.toArray(RoleDto[]::new);
 				newUser.setRoles(rolesDto);
 				log.debug("Leaving registerUser with userDto: {}", userDto.toString());
 				return newUser;
@@ -154,7 +155,7 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 				user.getRoles().clear();
 				for (int i = 0; i < userDto.getRoles().length; i++) {
 					var roleDto = userDto.getRoles()[i];
-					Roles role = roleRepository.findById(roleDto.getId())
+					Role role = roleRepository.findById(roleDto.getId())
 							.orElseThrow(() -> new IllegalArgumentException("Invalid role"));
 					user.getRoles().add(role);
 				}
@@ -164,11 +165,23 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 			user = userRepository.save(user);
 			UserDto updatedUserDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
 					user.getStatus(), user.getLastName(), user.getEmail(), null);
-			UserDto.RoleDto[] rolesDto = user.getRoles().stream()
-					.map(r -> new UserDto.RoleDto(r.getId(), r.getDescription())).toArray(UserDto.RoleDto[]::new);
+			RoleDto[] rolesDto = user.getRoles().stream().map(r -> new RoleDto(r.getId(), r.getDescription()))
+					.toArray(RoleDto[]::new);
 			updatedUserDto.setRoles(rolesDto);
 			log.debug("Leaving updateUserDetails() with userDto: {}", userDto);
 			return updatedUserDto;
 		}
+	}
+
+	@Transactional
+	public RoleDto[] getAllRoles() {
+		log.debug("Entering getAllRoles()");
+		List<Role> roles = roleRepository.findAll();
+		RoleDto[] roleDto = new RoleDto[roles.size()];
+		for (int i = 0; i < roles.size(); i++) {
+			roleDto[i] = new RoleDto(roles.get(i).getId(), roles.get(i).getDescription());
+		}
+		log.debug("Leaving getAllRoles()");
+		return roleDto;
 	}
 }

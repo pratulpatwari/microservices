@@ -18,6 +18,7 @@
 	<properties>
 		<java.version>${java.version}</java.version>
 		<exceptions.version>0.0.1-SNAPSHOT</exceptions.version>
+		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 	</properties>
 
 	<dependencies>
@@ -53,9 +54,16 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar.version}</version>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<!-- surefire generate test report -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>

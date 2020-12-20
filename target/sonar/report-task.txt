@@ -1,6 +1,0 @@
-projectKey=dev.pratul:Microservices
-serverUrl=http://localhost:9000
-serverVersion=8.5.1.38104
-dashboardUrl=http://localhost:9000/dashboard?id=dev.pratul%3AMicroservices
-ceTaskId=AXaA8nPfrBQcd7IzqsCz
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AXaA8nPfrBQcd7IzqsCz

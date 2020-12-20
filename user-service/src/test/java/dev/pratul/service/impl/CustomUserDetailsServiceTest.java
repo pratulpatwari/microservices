@@ -5,12 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,9 +23,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import dev.pratul.UserServiceException;
 import dev.pratul.dao.RolesRepository;
 import dev.pratul.dao.UserRepository;
+import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
-import dev.pratul.dto.UserDto.RoleDto;
-import dev.pratul.entity.Roles;
+import dev.pratul.entity.Role;
 import dev.pratul.entity.User;
 
 @SpringBootTest
@@ -41,11 +43,11 @@ class CustomUserDetailsServiceTest {
 	UserDto userDto = new UserDto();
 
 	User user = new User();
-	Roles role = new Roles();
+	Role role = new Role();
 	User user1 = new User();
-	Roles role1 = new Roles();
+	Role role1 = new Role();
 	List<User> users = new ArrayList<>();
-	Roles[] roles = new Roles[2];
+	Role[] roles = new Role[2];
 
 	@BeforeEach
 	void createUser() {
@@ -171,7 +173,7 @@ class CustomUserDetailsServiceTest {
 		assertEquals(2, multipleUserDtos.size());
 		assertEquals(1L, multipleUserDtos.get(0).getId());
 		assertEquals(2L, multipleUserDtos.get(1).getId());
-		
+
 		assertThrows(NumberFormatException.class, () -> {
 			userService.getUsersByUserIds("1abc");
 		});
@@ -183,8 +185,8 @@ class CustomUserDetailsServiceTest {
 			userService.registerUser(userDto);
 		}, "Missing role. User must belong to a role");
 
-		UserDto.RoleDto[] roleDtos = new RoleDto[1];
-		roleDtos[0] = new UserDto.RoleDto(1L, "Technical");
+		RoleDto[] roleDtos = new RoleDto[1];
+		roleDtos[0] = new RoleDto(1L, "Technical");
 		userDto.setRoles(roleDtos);
 		Mockito.when(roleRepository.findByIdIn(Mockito.any())).thenReturn(roles);
 		Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
@@ -202,8 +204,8 @@ class CustomUserDetailsServiceTest {
 			userService.updateUserDetails(userDto);
 		}, "Could not identify the user");
 		userDto.setId(1L);
-		UserDto.RoleDto[] roleDtos = new RoleDto[1];
-		roleDtos[0] = new UserDto.RoleDto(2L, "Business");
+		RoleDto[] roleDtos = new RoleDto[1];
+		roleDtos[0] = new RoleDto(2L, "Business");
 		userDto.setRoles(roleDtos);
 		Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
 		Mockito.when(roleRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(role1));
@@ -215,6 +217,20 @@ class CustomUserDetailsServiceTest {
 		assertThrows(IllegalArgumentException.class, () -> {
 			userService.updateUserDetails(userDto);
 		}, "Roles cannot be blank. Please select atleast one role");
+	}
+
+	@Test
+	void testGetAllRoles() {
+		List<Role> roles = new ArrayList<>();
+		roles.add(new Role(1L, "Technicial", ZonedDateTime.now(), ZonedDateTime.now()));
+		roles.add(new Role(2L, "Business", ZonedDateTime.now(), ZonedDateTime.now()));
+		roles.add(new Role(3L, "Admin", ZonedDateTime.now(), ZonedDateTime.now()));
+		Mockito.when(roleRepository.findAll()).thenReturn(roles);
+		RoleDto[] roleDto = userService.getAllRoles();
+		assertEquals(3, roleDto.length);
+		assertNotEquals("Technical", roleDto[1].getName());
+		assertEquals("Admin", roleDto[2].getName());
+		assertEquals(1L, roleDto[0].getId());
 	}
 
 }

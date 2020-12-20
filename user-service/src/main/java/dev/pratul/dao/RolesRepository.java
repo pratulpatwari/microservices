@@ -3,10 +3,10 @@ package dev.pratul.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import dev.pratul.entity.Roles;
+import dev.pratul.entity.Role;
 
 @Repository
-public interface RolesRepository extends JpaRepository<Roles,Long>{
+public interface RolesRepository extends JpaRepository<Role,Long>{
 	
-	Roles[] findByIdIn(Long[] ids);
+	Role[] findByIdIn(Long[] ids);
 }
