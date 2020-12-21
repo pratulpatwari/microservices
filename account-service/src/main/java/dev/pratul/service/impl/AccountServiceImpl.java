@@ -24,7 +24,7 @@ import dev.pratul.UserServiceException;
 import dev.pratul.dao.AccountRepository;
 import dev.pratul.dto.AccountDto;
 import dev.pratul.dto.UserDto;
-import dev.pratul.entity.Accounts;
+import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
 import dev.pratul.service.api.AccountService;
@@ -58,7 +58,7 @@ public class AccountServiceImpl implements AccountService {
 		} catch (Exception ex) {
 			throw new IllegalArgumentException("Invalid account provided");
 		}
-		Accounts account = accountRepository.findById(accId)
+		Account account = accountRepository.findById(accId)
 				.orElseThrow(() -> new NullPointerException(accountNotFound));
 		log.debug("Leaving getAccountById() {}", id);
 		return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(), account.isStatus(),
@@ -75,7 +75,7 @@ public class AccountServiceImpl implements AccountService {
 			log.error("Error while parsing the accountId: {}", ex.getMessage());
 			throw new IllegalArgumentException("No account provided");
 		}
-		Accounts account = accountRepository.findById(accId)
+		Account account = accountRepository.findById(accId)
 				.orElseThrow(() -> new NullPointerException(accountNotFound));
 		AccountDto accountDto = new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
 				account.isStatus());
@@ -107,13 +107,13 @@ public class AccountServiceImpl implements AccountService {
 		if (userDto == null) {
 			throw new UserServiceException("Could not find the requested user");
 		}
-		Set<Accounts> accounts = accountRepository.findByUserIdAndStatusTrueAndUserAccountStatusTrue(userDto.getId());
+		Set<Account> accounts = accountRepository.findByUserIdAndStatusTrueAndUserAccountStatusTrue(userDto.getId());
 		if (accounts.isEmpty()) {
 			log.error("No accounts available for user: {}", userId);
 			throw new NoSuchElementException("No accounts available for user " + userId);
 		} else {
 			List<AccountDto> dto = new LinkedList<>();
-			for (Accounts acc : accounts) {
+			for (Account acc : accounts) {
 				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), acc.isStatus(), null));
 			}
 			log.debug("Leaving getAllAccountsByUser(). # of accounts {} for user {}", dto.size(), userId);
@@ -131,13 +131,13 @@ public class AccountServiceImpl implements AccountService {
 			log.error("Exception while parsing the userId: {}", ex.getMessage());
 			throw new IllegalArgumentException("Invalid user");
 		}
-		Set<Accounts> accounts = accountRepository.findByUser(new User(user));
+		Set<Account> accounts = accountRepository.findByUser(new User(user));
 		if (accounts == null || accounts.isEmpty()) {
 			log.error("No accounts available for user: {}", userId);
 			throw new NoSuchElementException("No accounts available for user " + userId);
 		} else {
 			List<AccountDto> dto = new LinkedList<>();
-			for (Accounts acc : accounts) {
+			for (Account acc : accounts) {
 				boolean status = false;
 				Optional<UserAccount> userAccount = acc.getUserAccount().stream().findFirst();
 				if (!userAccount.isPresent()) {
@@ -171,19 +171,19 @@ public class AccountServiceImpl implements AccountService {
 			throw new IllegalArgumentException("Invalid account");
 		}
 		List<AccountDto> accountDtos = new LinkedList<>();
-		Set<Accounts> accountList = accountRepository.findByIdIn(accountIds);
+		Set<Account> accountList = accountRepository.findByIdIn(accountIds);
 		if (accountList.isEmpty()) {
 			throw new IllegalArgumentException(accountNotFound);
 		}
-		for (Accounts account : accountList) {
+		for (Account account : accountList) {
 			// deactivate account for all users when account is being deactivate
 			if (account.isStatus()) {
 				account.getUserAccount().stream().forEach(acc -> acc.setStatus(false));
 			}
 			account.setStatus(!account.isStatus());
 		}
-		final List<Accounts> updatedAccounts = accountRepository.saveAll(accountList);
-		for (Accounts account : updatedAccounts) {
+		final List<Account> updatedAccounts = accountRepository.saveAll(accountList);
+		for (Account account : updatedAccounts) {
 			accountDtos.add(new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
 					account.isStatus(), null));
 		}
@@ -192,7 +192,7 @@ public class AccountServiceImpl implements AccountService {
 
 	}
 
-	private void userAccountsMapping(Accounts account, List<UserDto> userDtos, boolean status) {
+	private void userAccountsMapping(Account account, List<UserDto> userDtos, boolean status) {
 		List<UserAccount> userAccount = new LinkedList<>();
 		for (UserDto userDto : userDtos) {
 			account.getUserAccount().stream()
@@ -226,11 +226,11 @@ public class AccountServiceImpl implements AccountService {
 		List<AccountDto> result = new LinkedList<>();
 		Map<String, AccountDto> accountMap = accountDtos.stream()
 				.collect(Collectors.toMap(AccountDto::getAccountId, acc -> acc));
-		Set<Accounts> accounts = accountRepository.findByAccountIdIn(accountMap.keySet());
-		for (Accounts account : accounts) {
+		Set<Account> accounts = accountRepository.findByAccountIdIn(accountMap.keySet());
+		for (Account account : accounts) {
 			AccountDto accDto = accountMap.get(account.getAccountId());
 			if (accDto != null && !accDto.getUsers().isEmpty()) {
-				Accounts updatedAccount = null;
+				Account updatedAccount = null;
 				try {
 					userAccountsMapping(account, accDto.getUsers(), accDto.isStatus());
 					updatedAccount = accountRepository.save(account);
@@ -283,7 +283,7 @@ public class AccountServiceImpl implements AccountService {
 				}
 			}
 		}
-		Accounts account = new Accounts(accountDto.getAccountId(), accountDto.getAccountName(),
+		Account account = new Account(accountDto.getAccountId(), accountDto.getAccountName(),
 				userAccounts != null ? userAccounts : null);
 		try {
 			account = accountRepository.save(account);

@@ -19,24 +19,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "positions", schema = "public")
+@Table(name = "position", schema = "public")
 @Getter
 @Setter
-public class ClientPosition {
+public class Position {
 
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
-	@SequenceGenerator(name = "seq_gen", sequenceName = "positions_id_seq", schema = "public", allocationSize = 1)
+	@SequenceGenerator(name = "seq_gen", sequenceName = "position_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
 	
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "acc_id")
-	private Accounts accounts;
+	private Account accounts;
 	
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "asset_id")
-	private Assets assetId;
+	private Asset assetId;
 	
 	@Column(name = "description")
 	private String description;

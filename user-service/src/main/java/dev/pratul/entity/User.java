@@ -72,7 +72,7 @@ public class User {
 	private String userName;
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "users_role_map", schema = "public", joinColumns = {
+	@JoinTable(name = "user_role_map", schema = "public", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "role_id", referencedColumnName = "id") })
 	private Set<Role> roles = new HashSet<>();

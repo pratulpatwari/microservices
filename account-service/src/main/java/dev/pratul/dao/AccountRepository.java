@@ -10,31 +10,31 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import dev.pratul.entity.Accounts;
+import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Accounts, Long> {
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
-	public Set<Accounts> findByIdIn(Set<Long> ids);
+	public Set<Account> findByIdIn(Set<Long> ids);
 	
-	public Set<Accounts> findByIdIn(Long[] ids);
+	public Set<Account> findByIdIn(Long[] ids);
 
-	public Optional<Accounts> findByAccountId(String accountId);
+	public Optional<Account> findByAccountId(String accountId);
 	
-	public Set<Accounts> findByAccountIdIn(Collection<String> accountId);
+	public Set<Account> findByAccountIdIn(Collection<String> accountId);
 
-	public Set<Accounts> findByUserAndStatusTrue(User user);
+	public Set<Account> findByUserAndStatusTrue(User user);
 
-	public Set<Accounts> findByUser(User user);
+	public Set<Account> findByUser(User user);
 
-	public Set<Accounts> findByUserAndStatusTrueAndUserAccountStatusTrue(User user);
+	public Set<Account> findByUserAndStatusTrueAndUserAccountStatusTrue(User user);
 
-	public Set<Accounts> findByUserIdAndStatusTrueAndUserAccountStatusTrue(Long userId);
+	public Set<Account> findByUserIdAndStatusTrueAndUserAccountStatusTrue(Long userId);
 
-	public Set<Accounts> findByAccountIdInAndUserIdIn(List<String> accountId, List<Long> userId);
+	public Set<Account> findByAccountIdInAndUserIdIn(List<String> accountId, List<Long> userId);
 
 	@Modifying
-	@Query("update Accounts acc set acc.status=:status where acc.id=:accountId")
+	@Query("update Account acc set acc.status=:status where acc.id=:accountId")
 	public void updateAccountStatus(Long accountId, boolean status);
 }

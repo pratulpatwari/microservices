@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>${java.version}</java.version>
 		<exceptions.version>0.0.1-SNAPSHOT</exceptions.version>
+		<sonar.version>3.6.0.1398</sonar.version>
 	</properties>
 
 	<dependencies>
@@ -51,6 +52,11 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar.version}</version>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

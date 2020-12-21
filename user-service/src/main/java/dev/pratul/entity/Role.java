@@ -23,7 +23,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "roles", schema = "public")
+@Table(name = "role", schema = "public")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,7 +33,7 @@ public class Role {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
-	@SequenceGenerator(name = "seq_gen", sequenceName = "roles_id_seq", schema = "public", allocationSize = 1)
+	@SequenceGenerator(name = "seq_gen", sequenceName = "role_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
 
 	@Column(name = "description")

@@ -16,8 +16,8 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 import dev.pratul.ServiceConfig;
 import dev.pratul.dao.ClientPositionRepository;
-import dev.pratul.entity.Accounts;
-import dev.pratul.entity.ClientPosition;
+import dev.pratul.entity.Account;
+import dev.pratul.entity.Position;
 import dev.pratul.service.api.ClientPositionService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,12 +38,12 @@ class ClientPositionServiceImpl implements ClientPositionService {
 
 	@HystrixCommand(fallbackMethod = "getFallbackClientPosition", commandKey = "clientPosition")
 	@Transactional
-	public List<ClientPosition> getClientPositions(String clientId) {
+	public List<Position> getClientPositions(String clientId) {
 		log.info("Entering getClientPositions() for clientId: {}", clientId);
-		List<ClientPosition> clientPositions = new ArrayList<>();
-		ResponseEntity<Accounts[]> accounts = getAccountsByIds(clientId);
+		List<Position> clientPositions = new ArrayList<>();
+		ResponseEntity<Account[]> accounts = getAccountsByUserId(clientId);
 		if (accounts != null && accounts.getBody() != null) {
-			List<Accounts> accountList = new ArrayList<>(List.of(accounts.getBody()));
+			List<Account> accountList = new ArrayList<>(List.of(accounts.getBody()));
 			clientPositions.addAll(clientPositionRepository.findByAccountsInAndCreateDateBetween(accountList,
 					ZonedDateTime.now().minusDays(7).with(LocalTime.MIN), ZonedDateTime.now()));
 		} else {
@@ -55,10 +55,10 @@ class ClientPositionServiceImpl implements ClientPositionService {
 		return clientPositions;
 	}
 
-	private ResponseEntity<Accounts[]> getAccountsByIds(String clientId) {
+	private ResponseEntity<Account[]> getAccountsByUserId(String clientId) {
 		try {
-			String accountServiceUrl = serviceConfig.getAccount() + "user/" + clientId;
-			return restTemplate.getForEntity(accountServiceUrl, Accounts[].class);
+			String accountServiceUrl = serviceConfig.getAccount() + "account/user/active/" + clientId;
+			return restTemplate.getForEntity(accountServiceUrl, Account[].class);
 		} catch (RestClientException ex) {
 			log.error(
 					"Error while fetching the accounts from account-service for user {}. The api called for account-service is: {}. Exception: {}",
@@ -69,11 +69,11 @@ class ClientPositionServiceImpl implements ClientPositionService {
 
 	@HystrixCommand(fallbackMethod = "getFallbackClientPositionByAccount", commandKey = "clientPosition")
 	@Transactional
-	public List<ClientPosition> getClientPositionsByAccount(String clientId, String accountId) {
+	public List<Position> getClientPositionsByAccount(String clientId, String accountId) {
 		log.info("Entering getClientPositionsByAccount() for client {} and accountId {}", clientId, accountId);
-		Accounts accounts = new Accounts();
+		Account accounts = new Account();
 		accounts.setId(Long.valueOf(accountId));
-		List<ClientPosition> clientPositions = clientPositionRepository.findByAccountsAndCreateDateBetween(accounts,
+		List<Position> clientPositions = clientPositionRepository.findByAccountsAndCreateDateBetween(accounts,
 				ZonedDateTime.now().minusDays(7).with(LocalTime.MIN), ZonedDateTime.now());
 		log.info("Leaving getClientPositionsByAccount() for client {} and accountId {}. The total # of positions are: ",
 				clientId, accountId, clientPositions.size());
@@ -87,7 +87,7 @@ class ClientPositionServiceImpl implements ClientPositionService {
 	 * input: clientId output: List of client positions for all the accounts for
 	 * this user
 	 */
-	public List<ClientPosition> getFallbackClientPosition(String clientId) {
+	public List<Position> getFallbackClientPosition(String clientId) {
 		log.warn(
 				"Error while fetching the accounts from account-service for user {}. Entering getFallbackClientPosition()",
 				clientId);
@@ -103,7 +103,7 @@ class ClientPositionServiceImpl implements ClientPositionService {
 	 * input: clientId, accountId output: List of client positions for the mentioned
 	 * accounts for this user
 	 */
-	public List<ClientPosition> getFallbackClientPositionByAccount(String clientId, String accountId) {
+	public List<Position> getFallbackClientPositionByAccount(String clientId, String accountId) {
 		log.warn(
 				"Error while fetching the accounts from account-service for user {} and account {}. Entering getFallbackClientPosition()",
 				clientId, accountId);

@@ -10,11 +10,11 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "accounts", schema = "public")
+@Table(name = "account", schema = "public")
 @Getter
 @Setter
 @ToString
-public class Accounts {
+public class Account {
 	
 	@Id
 	@Column(name = "id")

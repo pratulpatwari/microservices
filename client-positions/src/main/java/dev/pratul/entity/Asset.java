@@ -9,10 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "assets", schema = "public")
+@Table(name = "asset", schema = "public")
 @Getter
 @Setter
-public class Assets {
+public class Asset {
 
 	@Id
 	@Column(name = "id")

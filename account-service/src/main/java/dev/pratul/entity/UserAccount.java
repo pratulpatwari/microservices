@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "user_accounts_map", schema = "public")
+@Table(name = "user_account_map", schema = "public")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserAccount {
@@ -30,13 +30,13 @@ public class UserAccount {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
-	@SequenceGenerator(name = "seq_gen", sequenceName = "user_accounts_id_seq", schema = "public", allocationSize = 1)
+	@SequenceGenerator(name = "seq_gen", sequenceName = "user_account_id_seq", schema = "public", allocationSize = 1)
 	@EqualsAndHashCode.Include
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "acc_id")
-	private Accounts accounts;
+	private Account account;
 
 	@EqualsAndHashCode.Include
 	@ManyToOne(fetch = FetchType.LAZY)

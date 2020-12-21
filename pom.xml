@@ -22,8 +22,6 @@
 		<spring.version>2.2.6.RELEASE</spring.version>
 		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
 		<postgresql>42.2.9</postgresql>
-		<sonar.version>3.6.0.1398</sonar.version>
-		<jacoco-version>0.8.5</jacoco-version>
 	</properties>
 
 	<modules>
@@ -132,16 +130,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<version>${sonar.version}</version>
-			</plugin>
-		</plugins>
-	</build>
 	<!-- distribution of projects in nexus repository  -->
 	<distributionManagement>
 		<repository>

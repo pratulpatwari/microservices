@@ -27,7 +27,7 @@ import dev.pratul.UserServiceException;
 import dev.pratul.dao.AccountRepository;
 import dev.pratul.dto.AccountDto;
 import dev.pratul.dto.UserDto;
-import dev.pratul.entity.Accounts;
+import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
 import dev.pratul.service.api.AccountService;
@@ -44,9 +44,9 @@ class AccountServiceImplTest {
 	@MockBean
 	RestTemplate restTemplate;
 
-	Set<Accounts> accounts = new HashSet<>();
-	Accounts account = new Accounts();
-	Accounts deactiveAccount = new Accounts();
+	Set<Account> accounts = new HashSet<>();
+	Account account = new Account();
+	Account deactiveAccount = new Account();
 	User user = new User();
 	UserAccount userAccount = new UserAccount();
 
@@ -58,7 +58,7 @@ class AccountServiceImplTest {
 		account.setStatus(true);
 		account.setAccountId("324567");
 		account.setUser(Stream.of(user).collect(Collectors.toSet()));
-		userAccount.setAccounts(account);
+		userAccount.setAccount(account);
 		userAccount.setUser(user);
 		userAccount.setStatus(true);
 		account.setUserAccount(Stream.of(userAccount).collect(Collectors.toSet()));
