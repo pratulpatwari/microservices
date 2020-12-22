@@ -20,7 +20,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -59,15 +61,22 @@ public class Account {
 	@OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<UserAccount> userAccount = new HashSet<>();
 
+	@CreationTimestamp
 	@Column(name = "create_date")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	private ZonedDateTime createDate;
 
+	@UpdateTimestamp
 	@Column(name = "update_date")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	private ZonedDateTime updateDate;
 
 	public Account() {
+	}
+
+	public Account(String accountId, String accountName) {
+		this.accountId = accountId;
+		this.accountName = accountName;
 	}
 
 	public Account(String accountId, String accountName, UserAccount... userAccount) {

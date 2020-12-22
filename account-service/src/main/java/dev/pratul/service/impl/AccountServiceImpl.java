@@ -52,13 +52,7 @@ public class AccountServiceImpl implements AccountService {
 		if (id == null) {
 			throw new IllegalArgumentException("No account provided");
 		}
-		Long accId = null;
-		try {
-			accId = Long.valueOf(id);
-		} catch (Exception ex) {
-			throw new IllegalArgumentException("Invalid account provided");
-		}
-		Account account = accountRepository.findById(accId)
+		Account account = accountRepository.findById(Long.valueOf(id))
 				.orElseThrow(() -> new NullPointerException(accountNotFound));
 		log.debug("Leaving getAccountById() {}", id);
 		return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(), account.isStatus(),
@@ -68,14 +62,7 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public AccountDto getAccountDetailsById(String id) {
 		log.debug("Entering getAccountDetailsById() {}", id);
-		Long accId = null;
-		try {
-			accId = Long.valueOf(id);
-		} catch (Exception ex) {
-			log.error("Error while parsing the accountId: {}", ex.getMessage());
-			throw new IllegalArgumentException("No account provided");
-		}
-		Account account = accountRepository.findById(accId)
+		Account account = accountRepository.findById(Long.valueOf(id))
 				.orElseThrow(() -> new NullPointerException(accountNotFound));
 		AccountDto accountDto = new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
 				account.isStatus());
@@ -124,14 +111,7 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public List<AccountDto> getAllAccountsByUser(String userId) {
 		log.debug("Entering getAllAccountsByUser() for userId: {}", userId);
-		Long user = null;
-		try {
-			user = Long.valueOf(userId);
-		} catch (Exception ex) {
-			log.error("Exception while parsing the userId: {}", ex.getMessage());
-			throw new IllegalArgumentException("Invalid user");
-		}
-		Set<Account> accounts = accountRepository.findByUser(new User(user));
+		Set<Account> accounts = accountRepository.findByUser(new User(Long.valueOf(userId)));
 		if (accounts == null || accounts.isEmpty()) {
 			log.error("No accounts available for user: {}", userId);
 			throw new NoSuchElementException("No accounts available for user " + userId);
@@ -309,5 +289,24 @@ public class AccountServiceImpl implements AccountService {
 	public List<AccountDto> getAccountFromCache(List<AccountDto> accountDtos) {
 		log.debug("Entering getUserFromCache with accounts: {}", accountDtos.size());
 		return new ArrayList<>();
+	}
+
+	@Transactional
+	public void addAccounts() {
+		List<Account> accounts = new LinkedList<>();
+		for (int i = 324217; i <= 325217; i++) {
+			accounts.add(new Account(String.valueOf(i), "Domestic account"));
+		}
+		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
+		StringBuilder sb = new StringBuilder(8);
+		for (int i = 0; i < 1000; i++) {
+			for (int j = 0; j < 8; j++) {
+				int index = (int) (AlphaNumericString.length() * Math.random());
+				sb.append(AlphaNumericString.charAt(index));
+			}
+			accounts.add(new Account(sb.toString(), "Global Account"));
+			sb.delete(0, 8);
+		}
+		accountRepository.saveAll(accounts);
 	}
 }

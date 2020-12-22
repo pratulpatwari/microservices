@@ -1,8 +1,11 @@
 package dev.pratul.service.api;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import dev.pratul.entity.Position;
+import dev.pratul.model.ClientPositionSummary;
+import dev.pratul.model.Position;
 
 public interface ClientPositionService {
 
@@ -14,13 +17,10 @@ public interface ClientPositionService {
 	 * input: clientId - primary key from user table output: list of client
 	 * positions for active accounts for the mentioned user
 	 */
-	public List<Position> getClientPositions(String clientId);
+	public List<ClientPositionSummary> getClientPositions(String clientId, Optional<String> from, Optional<String> to);
 
 	/*
-	 * Fetch client positions for a particular account
-	 * 
-	 * input: clientId, accountId output: list of client positions for the mentioned
-	 * account. accountId is the primary key from account table
+	 * Fetch the client positions using parameters provided
 	 */
-	public List<Position> getClientPositionsByAccount(String clientId, String accountId);
+	public List<ClientPositionSummary> getClientPositions(long userId, Map<String, String> params);
 }

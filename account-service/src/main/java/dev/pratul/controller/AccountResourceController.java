@@ -30,45 +30,41 @@ public class AccountResourceController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<AccountDto> getAccountById(@PathVariable(value = "id") String id) {
-		AccountDto accountDto = accountService.getAccountById(id);
-		return new ResponseEntity<>(accountDto, accountDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(accountService.getAccountById(id), HttpStatus.OK);
 	}
 
 	@GetMapping("/details/{id}")
 	public ResponseEntity<AccountDto> getAccountDetailsById(@PathVariable(value = "id") String id) {
-		AccountDto accountDto = accountService.getAccountDetailsById(id);
-		return new ResponseEntity<>(accountDto, accountDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(accountService.getAccountDetailsById(id), HttpStatus.OK);
 	}
 
 	@PutMapping("/deactive")
 	public ResponseEntity<List<AccountDto>> deactivateAccount(@RequestParam("accounts") String accounts) {
-		List<AccountDto> dto = accountService.deactivateAccount(accounts);
-		return new ResponseEntity<>(dto,
-				dto != null && !dto.isEmpty() ? HttpStatus.OK : HttpStatus.PRECONDITION_FAILED);
+		return new ResponseEntity<>(accountService.deactivateAccount(accounts), HttpStatus.OK);
 	}
 
 	@GetMapping("/user/active/{id}")
 	public ResponseEntity<List<AccountDto>> getActiveAccountsByUser(@PathVariable(value = "id") String userId) {
-		List<AccountDto> accounts = accountService.getActiveAccountsByUser(userId);
-		return new ResponseEntity<>(accounts, HttpStatus.OK);
+		return new ResponseEntity<>(accountService.getActiveAccountsByUser(userId), HttpStatus.OK);
 	}
 
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<List<AccountDto>> getAllAccountsByUser(@PathVariable(value = "userId") String userId) {
-		List<AccountDto> accounts = accountService.getAllAccountsByUser(userId);
-		return new ResponseEntity<>(accounts, HttpStatus.OK);
+		return new ResponseEntity<>(accountService.getAllAccountsByUser(userId), HttpStatus.OK);
 	}
 
 	@PutMapping("/user")
 	public ResponseEntity<List<AccountDto>> updateUserAccount(@RequestBody @Valid List<AccountDto> accountDto) {
-		List<AccountDto> updatedUserAccounts = accountService.updateUserAccount(accountDto);
-		return new ResponseEntity<>(updatedUserAccounts,
-				updatedUserAccounts != null ? HttpStatus.OK : HttpStatus.NOT_MODIFIED);
+		return new ResponseEntity<>(accountService.updateUserAccount(accountDto), HttpStatus.OK);
 	}
 
 	@PostMapping("/add")
 	public ResponseEntity<AccountDto> addAccount(@RequestBody @Valid AccountDto accountDto) {
-		AccountDto account = accountService.addAccount(accountDto);
-		return new ResponseEntity<>(account, account != null ? HttpStatus.CREATED : HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(accountService.addAccount(accountDto), HttpStatus.CREATED);
+	}
+	
+	@PostMapping("/sample")
+	public void addAccounts() {
+		accountService.addAccounts();
 	}
 }

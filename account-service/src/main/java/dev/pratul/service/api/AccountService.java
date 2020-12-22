@@ -56,5 +56,7 @@ public interface AccountService {
 	 * @return: AccountDto of newly created account
 	 */
 	public AccountDto addAccount(AccountDto accountDto);
+	
+	public void addAccounts();
 
 }
