@@ -291,22 +291,39 @@ public class AccountServiceImpl implements AccountService {
 		return new ArrayList<>();
 	}
 
-	@Transactional
-	public void addAccounts() {
-		List<Account> accounts = new LinkedList<>();
-		for (int i = 324217; i <= 325217; i++) {
-			accounts.add(new Account(String.valueOf(i), "Domestic account"));
-		}
-		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
-		StringBuilder sb = new StringBuilder(8);
-		for (int i = 0; i < 1000; i++) {
-			for (int j = 0; j < 8; j++) {
-				int index = (int) (AlphaNumericString.length() * Math.random());
-				sb.append(AlphaNumericString.charAt(index));
-			}
-			accounts.add(new Account(sb.toString(), "Global Account"));
-			sb.delete(0, 8);
-		}
-		accountRepository.saveAll(accounts);
-	}
+//	@Transactional
+//	public void addAccounts() {
+//		List<Account> accounts = new LinkedList<>();
+//		for (int i = 324217; i <= 325217; i++) {
+//			accounts.add(new Account(String.valueOf(i), "Domestic account"));
+//		}
+//		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
+//		StringBuilder sb = new StringBuilder(8);
+//		for (int i = 0; i < 1000; i++) {
+//			for (int j = 0; j < 8; j++) {
+//				int index = (int) (AlphaNumericString.length() * Math.random());
+//				sb.append(AlphaNumericString.charAt(index));
+//			}
+//			accounts.add(new Account(sb.toString(), "Global Account"));
+//			sb.delete(0, 8);
+//		}
+//		accountRepository.saveAll(accounts);
+//	}
+
+//	@Transactional
+//	public void addUserAccount() {
+//		String url = apiService.getUser() + "user/all";
+//		ResponseEntity<UserDto[]> user = restTemplate.getForEntity(url, UserDto[].class);
+//		List<Account> accounts = accountRepository.findAll();
+//		if (user.getStatusCode() == HttpStatus.OK) {
+//			UserDto[] users = user.getBody();
+//			for (int i = 0; i < users.length; i++) {
+//				for (int j = i; j < accounts.size(); j += 25 - i) {
+//					accounts.get(j).getUserAccount()
+//							.add(new UserAccount(new User(users[i].getId()), accounts.get(j), true));
+//				}
+//			}
+//			accountRepository.saveAll(accounts);
+//		}
+//	}
 }

@@ -13,6 +13,11 @@ public interface ICustomUserDetailsService {
 	RoleDto[] getAllRoles();
 
 	/*
+	 * Fetch the list of all users in the DB
+	 */
+	List<UserDto> getAllUsers();
+
+	/*
 	 * Register a new user using the DTO object. Status is by default marked as
 	 * active which means any user created will be default be active
 	 */

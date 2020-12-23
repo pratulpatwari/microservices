@@ -1,0 +1,20 @@
+server:
+  port: 9093
+
+################## Enable all the endpoints for actuator ###############
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+   
+eureka:
+  client:
+    eureka-server-port: 8761
+    service-url:
+      defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    health-check-url:http://localhost:9093/health
+

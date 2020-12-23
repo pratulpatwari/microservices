@@ -63,4 +63,10 @@ public class UserAccount {
 		this.user = user;
 		this.status = status;
 	}
+	
+	public UserAccount(User user, Account account, boolean status) {
+		this.user = user;
+		this.account = account;
+		this.status = status;
+	}
 }

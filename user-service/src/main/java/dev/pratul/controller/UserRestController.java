@@ -31,8 +31,12 @@ public class UserRestController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long id) {
-		UserDto user = userService.getUserById(id);
-		return new ResponseEntity<>(user, user != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+	}
+	
+	@GetMapping("/all")
+	public ResponseEntity<List<UserDto>> getAllUsers(){
+		return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
 	}
 
 	@GetMapping

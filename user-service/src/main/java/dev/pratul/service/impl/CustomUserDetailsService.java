@@ -50,6 +50,20 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 	}
 
 	@Transactional
+	public List<UserDto> getAllUsers() {
+		log.debug("Entering getAllUsers()");
+		List<User> users = userRepository.findAll();
+		List<UserDto> userDtos = new LinkedList<>();
+		for (User user : users) {
+			userDtos.add(new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(), user.getStatus(),
+					user.getLastName(), user.getEmail(), user.getRoles().stream()
+							.map(role -> new RoleDto(role.getId(), role.getDescription())).toArray(RoleDto[]::new)));
+		}
+		log.debug("Leaving getAllUsers()");
+		return userDtos;
+	}
+
+	@Transactional
 	public List<UserDto> getUsersByIds(List<Long> ids) {
 		log.debug("Entering getUsersByIds() with # of users {}", ids != null ? ids.size() : null);
 		if (ids == null || ids.isEmpty()) {

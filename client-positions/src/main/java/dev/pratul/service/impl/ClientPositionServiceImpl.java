@@ -45,6 +45,7 @@ class ClientPositionServiceImpl implements ClientPositionService {
 		log.debug("Entering getClientPositions() for user {} with number of parameters: {}", userId, params.size());
 		for (Map.Entry<String, String> entry : params.entrySet()) {
 			// query using user and other params
+			
 		}
 		log.debug("Leaving getClientPositions() for user {} with number of parameters: {}", userId, params.size());
 		return null;

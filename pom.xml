@@ -30,6 +30,7 @@
 		<module>account-service</module>
 		<module>client-positions</module>
 		<module>netflix-zuul-api-gateway</module>
+		<module>data-load</module>
 	</modules>
 	<dependencies>
 
