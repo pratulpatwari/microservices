@@ -121,7 +121,7 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 	public UserDto registerUser(UserDto userDto) {
 		log.debug("Entering registerUser with userDto: {}", userDto);
 		if (userDto.getRoles() != null && userDto.getRoles().length > 0) {
-			Long[] roleIds = new Long[userDto.getRoles().length];
+			Integer[] roleIds = new Integer[userDto.getRoles().length];
 			for (int i = 0; i < roleIds.length; i++) {
 				roleIds[i] = userDto.getRoles()[i].getId();
 			}

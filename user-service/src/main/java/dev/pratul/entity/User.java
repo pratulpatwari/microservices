@@ -18,7 +18,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -54,11 +53,6 @@ public class User {
 	@Column(name = "middle_initial")
 	private String middleInitial;
 
-	@Column(name = "password")
-	@NotBlank(message = "Password cannot be blank")
-	@Size(min = 5, max = 200, message = "Password must be between 5 to 200 length")
-	private String password;
-
 	@Column(name = "status")
 	private String status = "active";
 
@@ -67,7 +61,7 @@ public class User {
 	@Email(message = "Invalid Email format")
 	private String email;
 
-	@Column(name = "username")
+	@Column(name = "username", unique = true)
 	@NotBlank(message = "Username cannot be blank")
 	private String userName;
 

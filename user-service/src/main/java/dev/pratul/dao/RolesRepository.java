@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import dev.pratul.entity.Role;
 
 @Repository
-public interface RolesRepository extends JpaRepository<Role,Long>{
+public interface RolesRepository extends JpaRepository<Role,Integer>{
 	
-	Role[] findByIdIn(Long[] ids);
+	Role[] findByIdIn(Integer[] ids);
 }

@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +49,7 @@ class CustomUserDetailsServiceTest {
 
 	@BeforeEach
 	void createUser() {
-		role.setId(1L);
+		role.setId(1);
 		role.setDescription("Technical");
 		user.setId(1L);
 		user.setFirstName("Pratul");
@@ -59,7 +58,7 @@ class CustomUserDetailsServiceTest {
 		user.setRoles(Stream.of(role).collect(Collectors.toSet()));
 		users.add(user);
 
-		role1.setId(2L);
+		role1.setId(2);
 		role1.setDescription("Business");
 		user1.setId(2L);
 		user1.setFirstName("John");
@@ -185,7 +184,7 @@ class CustomUserDetailsServiceTest {
 		}, "Missing role. User must belong to a role");
 
 		RoleDto[] roleDtos = new RoleDto[1];
-		roleDtos[0] = new RoleDto(1L, "Technical");
+		roleDtos[0] = new RoleDto(1, "Technical");
 		userDto.setRoles(roleDtos);
 		Mockito.when(roleRepository.findByIdIn(Mockito.any())).thenReturn(roles);
 		Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
@@ -204,10 +203,10 @@ class CustomUserDetailsServiceTest {
 		}, "Could not identify the user");
 		userDto.setId(1L);
 		RoleDto[] roleDtos = new RoleDto[1];
-		roleDtos[0] = new RoleDto(2L, "Business");
+		roleDtos[0] = new RoleDto(2, "Business");
 		userDto.setRoles(roleDtos);
 		Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
-		Mockito.when(roleRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(role1));
+		Mockito.when(roleRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(role1));
 		UserDto updatedUserDto = userService.updateUserDetails(userDto);
 		assertEquals(1L, updatedUserDto.getId());
 		assertEquals("deactive", updatedUserDto.getStatus());
@@ -221,9 +220,9 @@ class CustomUserDetailsServiceTest {
 	@Test
 	void testGetAllRoles() {
 		List<Role> roles = new ArrayList<>();
-		roles.add(new Role(1L, "Technicial", ZonedDateTime.now(), ZonedDateTime.now()));
-		roles.add(new Role(2L, "Business", ZonedDateTime.now(), ZonedDateTime.now()));
-		roles.add(new Role(3L, "Admin", ZonedDateTime.now(), ZonedDateTime.now()));
+		roles.add(new Role(1, "TECH","Technicial"));
+		roles.add(new Role(2, "BUS","Business"));
+		roles.add(new Role(3, "ADMIN","Admin"));
 		Mockito.when(roleRepository.findAll()).thenReturn(roles);
 		RoleDto[] roleDto = userService.getAllRoles();
 		assertEquals(3, roleDto.length);

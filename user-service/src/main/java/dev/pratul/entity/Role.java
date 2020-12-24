@@ -34,7 +34,11 @@ public class Role {
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
 	@SequenceGenerator(name = "seq_gen", sequenceName = "role_id_seq", schema = "public", allocationSize = 1)
-	private Long id;
+	private Integer id;
+
+	@Column(name = "name")
+	@NotBlank(message = "Role name cannot be blank")
+	private String name;
 
 	@Column(name = "description")
 	@NotBlank(message = "Role description cannot be blank")
@@ -50,8 +54,14 @@ public class Role {
 	@UpdateTimestamp
 	private ZonedDateTime modifiedDate;
 
-	public Role(Long id) {
+	public Role(Integer id) {
 		this.id = id;
+	}
+
+	public Role(Integer id, String name, String description) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
 	}
 
 }

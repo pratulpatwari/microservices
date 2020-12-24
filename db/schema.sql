@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS ACCOUNT CASCADE;
 CREATE TABLE ACCOUNT(
-	ID			SERIAL,
+	ID		BIGSERIAL,
 	ACC_ID		VARCHAR(100) NOT NULL,
 	ACC_NAME	TEXT,
 	STATUS		BOOLEAN,
@@ -13,8 +13,8 @@ CREATE TABLE ACCOUNT(
 /* Asset table consists of all the possible assets in market*/
 DROP TABLE IF EXISTS ASSET CASCADE;
 CREATE TABLE ASSET (
-  	ID         SERIAL,
-	SYMBOL 		VARCHAR(15) NOT NULL,
+  	ID      BIGSERIAL,
+	SYMBOL 	VARCHAR(15) NOT NULL,
 	DESCRIPTION TEXT,
 	MARKET_VALUE FLOAT DEFAULT 0,
 	CREATE_DATE TIMESTAMP,
@@ -25,9 +25,9 @@ CREATE TABLE ASSET (
 /*Positions table describes the market value of each asset held by the account*/
 DROP TABLE IF EXISTS POSITION CASCADE;
 CREATE TABLE POSITION (
-  	ID SERIAL,
-	ACC_ID			BIGINT,
-	ASSET_ID 		BIGINT,
+  	ID BIGSERIAL,
+	ACC_ID		BIGINT,
+	ASSET_ID 	BIGINT,
 	DESCRIPTION    	TEXT,
 	MARKET_VALUE 	FLOAT,
 	CREATE_DATE 	TIMESTAMP,
@@ -40,8 +40,8 @@ CREATE TABLE POSITION (
 /* Positions_lot table shows how many assets were bought in single transaction */
 DROP TABLE IF EXISTS POSITION_LOT CASCADE;
 CREATE TABLE POSITION_LOT (
-	ID          SERIAL,
-	POSITION_ID	BIGINT,
+	ID          BIGSERIAL,
+	POSITION_ID BIGINT,
 	DESCRIPTION TEXT,
 	QUANTITY 	INT,
 	MARKET_VALUE FLOAT,
@@ -54,7 +54,7 @@ CREATE TABLE POSITION_LOT (
 DROP TABLE IF EXISTS users;
 CREATE TABLE users
 (
-  id serial,
+  id bigserial,
   first_name character varying(45) NOT NULL,
   last_name character varying(45) NOT NULL,
   middle_initial character varying(1),
@@ -82,20 +82,22 @@ CREATE TABLE role
 DROP TABLE IF EXISTS user_role_map;
 CREATE TABLE user_role_map
 ( 
-  id serial,
+  id bigserial,
   user_id bigint,
-  role_id bigint,
+  role_id int,
+  status boolean not null,
   created_date timestamp without time zone,
   modified_date timestamp without time zone,
   PRIMARY KEY (ID),
   FOREIGN KEY (user_id) REFERENCES users(ID),
-  FOREIGN KEY (role_id) REFERENCES role(ID)
+  FOREIGN KEY (role_id) REFERENCES role(ID),
+  UNIQUE(user_id,role_id)
 );
 
 DROP TABLE IF EXISTS user_account_map;
 CREATE TABLE user_account_map
 ( 
-  id serial,
+  id bigserial,
   user_id bigint,
   acc_id bigint,
   status boolean,
@@ -103,7 +105,8 @@ CREATE TABLE user_account_map
   modified_date timestamp without time zone,
   PRIMARY KEY (ID),
   FOREIGN KEY (user_id) REFERENCES users(ID),
-  FOREIGN KEY (acc_id) REFERENCES account(ID)
+  FOREIGN KEY (acc_id) REFERENCES account(ID),
+  UNIQUE(user_id,acc_id)
 );
 
 
@@ -124,10 +127,10 @@ insert into role(description,created_date,modified_date,name)
 values
 ('Engineer',NOW(),NOW(),'ENG');
 
-insert into user_role_map(user_id,role_id,created_date,modified_date)
-values
-(1,1,NOW(),NOW());
 
+insert into user_role_map(user_id,role_id,status,created_date,modified_date)
+values
+(1,(select id from role where name='TECH'),true,NOW(),NOW());
 
 INSERT INTO ASSET(SYMBOL,DESCRIPTION,MARKET_VALUE,CREATE_DATE,UPDATE_DATE)
 VALUES
