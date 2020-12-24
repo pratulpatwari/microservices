@@ -7,7 +7,7 @@ spring:
       server:
         git:
           uri: /Users/pratulpatwari/Desktop/microservices/
-          search-paths: configrepo
+          search-paths: configrepo/dev
           
       
       

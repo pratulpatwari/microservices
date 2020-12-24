@@ -1,0 +1,38 @@
+server:
+  port: 9090
+
+################## Enable all the endpoints for actuator ###############
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+        
+hibernate:
+  cache:
+    user_second_level_cache: true
+    region:
+      factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+
+eureka:
+  client:
+    eureka-server-port: 8761
+    service-url:
+      defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    health-check-url:http://localhost:9092/health
+
+hystrix:
+  command:
+    userService:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 500
+      circuitBreaker:
+        requestVolumeThreshold: 5
+        errorThresholdPercentage: 50
+        sleepWindowInMilliseconds: 1000

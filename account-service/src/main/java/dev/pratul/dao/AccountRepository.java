@@ -27,10 +27,14 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	public Set<Account> findByUserAndStatusTrue(User user);
 
 	public Set<Account> findByUser(User user);
+	
+	public Set<Account> findByUserAccount_UserId(Long userId);
 
 	public Set<Account> findByUserAndStatusTrueAndUserAccountStatusTrue(User user);
 
 	public Set<Account> findByUserIdAndStatusTrueAndUserAccountStatusTrue(Long userId);
+	
+	public Set<Account> findByUserIdAndStatusTrueAndUserAccountStatus(Long userId, boolean status);
 
 	public Set<Account> findByAccountIdInAndUserIdIn(List<String> accountId, List<Long> userId);
 

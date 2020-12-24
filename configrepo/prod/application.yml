@@ -1,0 +1,32 @@
+################# Spring JPA and PostgreSql  #################
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    jdbc-url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: admin
+    
+  jpa:
+    database: POSTGRESQL
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        generate_statistics: true
+        order_insert: true
+        order_updates: true
+        jdbc:
+          batch_size: 10
+    
+  data:
+    jpa:
+      repositories:
+        enabled: true
+
+################# Service urls for different services #################
+service:
+  uri:
+    user: http://user-service/api/
+    position: http://client-position/api/
+    account: http://account-service/api/

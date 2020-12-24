@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,24 +16,22 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "account", schema = "public")
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Getter
+@Setter
 public class Account {
 
 	@Id
@@ -40,9 +39,7 @@ public class Account {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
 	@SequenceGenerator(name = "seq_gen", sequenceName = "account_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
-
-	@EqualsAndHashCode.Include
-	@NaturalId
+	
 	@Column(name = "acc_id")
 	private String accountId;
 
@@ -52,7 +49,7 @@ public class Account {
 	@Column(name = "status")
 	private boolean status = true;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_account_map", schema = "public", joinColumns = {
 			@JoinColumn(name = "acc_id", referencedColumnName = "id", nullable = false, updatable = true) }, inverseJoinColumns = {
 					@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, updatable = true) })
@@ -63,11 +60,13 @@ public class Account {
 
 	@CreationTimestamp
 	@Column(name = "create_date")
+	@Basic(fetch = FetchType.LAZY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	private ZonedDateTime createDate;
 
 	@UpdateTimestamp
 	@Column(name = "update_date")
+	@Basic(fetch = FetchType.LAZY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	private ZonedDateTime updateDate;
 

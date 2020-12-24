@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -108,24 +107,31 @@ public class AccountServiceImpl implements AccountService {
 		}
 	}
 
+	/*
+	 * In order to prevent multiple queries to DB, we are querying on the status
+	 * which will send only 2 separate queries depending upon the status and user
+	 */
 	@Transactional
 	public List<AccountDto> getAllAccountsByUser(String userId) {
 		log.debug("Entering getAllAccountsByUser() for userId: {}", userId);
-		Set<Account> accounts = accountRepository.findByUser(new User(Long.valueOf(userId)));
-		if (accounts == null || accounts.isEmpty()) {
+		Set<Account> activeAccounts = accountRepository
+				.findByUserIdAndStatusTrueAndUserAccountStatus(Long.valueOf(userId), true);
+		Set<Account> deactiveAccounts = accountRepository
+				.findByUserIdAndStatusTrueAndUserAccountStatus(Long.valueOf(userId), false);
+
+		if (activeAccounts.isEmpty() && deactiveAccounts.isEmpty()) {
 			log.error("No accounts available for user: {}", userId);
 			throw new NoSuchElementException("No accounts available for user " + userId);
 		} else {
 			List<AccountDto> dto = new LinkedList<>();
-			for (Account acc : accounts) {
-				boolean status = false;
-				Optional<UserAccount> userAccount = acc.getUserAccount().stream().findFirst();
-				if (!userAccount.isPresent()) {
-					log.debug("No user assigned to this account");
-				} else {
-					status = userAccount.get().isStatus();
+			for (Account acc : activeAccounts) {
+				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), true));
+			}
+
+			for (Account acc : deactiveAccounts) {
+				if (acc.isStatus()) {
+					dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), false));
 				}
-				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), status, null));
 			}
 			log.debug("Leaving getAllAccountsByUser(). # of accounts {} for user {}", dto.size(), userId);
 			return dto;
