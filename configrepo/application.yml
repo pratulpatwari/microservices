@@ -10,10 +10,15 @@ spring:
     database: POSTGRESQL
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        generate_statistics: true
+        order_insert: true
+        order_updates: true
+        jdbc:
+          batch_size: 10
     
   data:
     jpa:
