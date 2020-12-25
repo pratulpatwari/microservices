@@ -9,11 +9,10 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
@@ -21,6 +20,7 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import dev.pratul.ApiServices;
 import dev.pratul.UserServiceException;
 import dev.pratul.dao.AccountRepository;
+import dev.pratul.dao.UserAccountRepository;
 import dev.pratul.dto.AccountDto;
 import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Account;
@@ -34,13 +34,16 @@ import lombok.extern.slf4j.Slf4j;
 public class AccountServiceImpl implements AccountService {
 
 	private final AccountRepository accountRepository;
+	private final UserAccountRepository userAccountRepository;
 	private final ApiServices apiService;
 	private final RestTemplate restTemplate;
 
 	private String accountNotFound = "Account not found";
 
-	public AccountServiceImpl(AccountRepository accountRepository, ApiServices apiService, RestTemplate restTemplate) {
+	public AccountServiceImpl(AccountRepository accountRepository, UserAccountRepository userAccountRepository,
+			ApiServices apiService, RestTemplate restTemplate) {
 		this.accountRepository = accountRepository;
+		this.userAccountRepository = userAccountRepository;
 		this.apiService = apiService;
 		this.restTemplate = restTemplate;
 	}
@@ -179,7 +182,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	private void userAccountsMapping(Account account, List<UserDto> userDtos, boolean status) {
-		List<UserAccount> userAccount = new LinkedList<>();
+		List<UserAccount> userAccount = new ArrayList<>();
 		for (UserDto userDto : userDtos) {
 			account.getUserAccount().stream()
 					.filter(u -> u.getUser().getId().longValue() == userDto.getId().longValue()).findAny()
@@ -203,10 +206,11 @@ public class AccountServiceImpl implements AccountService {
 						}
 					});
 		}
+		account.getUserAccount().addAll(userAccount);
 	}
 
 	@HystrixCommand(fallbackMethod = "getAccountFromCache", commandKey = "accountService")
-	@Transactional
+	@Transactional(readOnly = false)
 	public List<AccountDto> updateUserAccount(List<AccountDto> accountDtos) {
 		log.debug("Entering updateUserAccount() with # of accounts: {}", accountDtos.size());
 		List<AccountDto> result = new LinkedList<>();
@@ -216,25 +220,14 @@ public class AccountServiceImpl implements AccountService {
 		for (Account account : accounts) {
 			AccountDto accDto = accountMap.get(account.getAccountId());
 			if (accDto != null && !accDto.getUsers().isEmpty()) {
-				Account updatedAccount = null;
 				try {
-					userAccountsMapping(account, accDto.getUsers(), accDto.isStatus());
-					updatedAccount = accountRepository.save(account);
+					if (account.isStatus()) {
+						userAccountsMapping(account, accDto.getUsers(), accDto.isStatus());
+						accountRepository.save(account);
+					}
 				} catch (IllegalArgumentException ex) {
 					log.error("Error while saving the account: {}. Exception: {}", account.getAccountId(),
 							ex.getMessage());
-				}
-				if (updatedAccount != null) {
-					AccountDto acc = new AccountDto(updatedAccount.getId(), updatedAccount.getAccountId(),
-							updatedAccount.getAccountName(), updatedAccount.isStatus(),
-							updatedAccount.getUser() != null
-									? updatedAccount.getUserAccount().stream().filter(UserAccount::isStatus)
-											.map(u -> new UserDto(u.getUser().getId(), u.getUser().getFirstName(),
-													u.getUser().getMiddleInitial(), u.getUser().getStatus(),
-													u.getUser().getLastName(), null))
-											.collect(Collectors.toList())
-									: null);
-					result.add(acc);
 				}
 			}
 		}
@@ -297,39 +290,39 @@ public class AccountServiceImpl implements AccountService {
 		return new ArrayList<>();
 	}
 
-//	@Transactional
-//	public void addAccounts() {
-//		List<Account> accounts = new LinkedList<>();
-//		for (int i = 324217; i <= 325217; i++) {
-//			accounts.add(new Account(String.valueOf(i), "Domestic account"));
-//		}
-//		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
-//		StringBuilder sb = new StringBuilder(8);
-//		for (int i = 0; i < 1000; i++) {
-//			for (int j = 0; j < 8; j++) {
-//				int index = (int) (AlphaNumericString.length() * Math.random());
-//				sb.append(AlphaNumericString.charAt(index));
-//			}
-//			accounts.add(new Account(sb.toString(), "Global Account"));
-//			sb.delete(0, 8);
-//		}
-//		accountRepository.saveAll(accounts);
-//	}
+	@Transactional
+	public void addAccounts() {
+		List<Account> accounts = new LinkedList<>();
+		for (int i = 324217; i <= 325217; i++) {
+			accounts.add(new Account(String.valueOf(i), "Domestic account"));
+		}
+		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
+		StringBuilder sb = new StringBuilder(8);
+		for (int i = 0; i < 1000; i++) {
+			for (int j = 0; j < 8; j++) {
+				int index = (int) (AlphaNumericString.length() * Math.random());
+				sb.append(AlphaNumericString.charAt(index));
+			}
+			accounts.add(new Account(sb.toString(), "Global Account"));
+			sb.delete(0, 8);
+		}
+		accountRepository.saveAll(accounts);
+	}
 
-//	@Transactional
-//	public void addUserAccount() {
-//		String url = apiService.getUser() + "user/all";
-//		ResponseEntity<UserDto[]> user = restTemplate.getForEntity(url, UserDto[].class);
-//		List<Account> accounts = accountRepository.findAll();
-//		if (user.getStatusCode() == HttpStatus.OK) {
-//			UserDto[] users = user.getBody();
-//			for (int i = 0; i < users.length; i++) {
-//				for (int j = i; j < accounts.size(); j += 25 - i) {
-//					accounts.get(j).getUserAccount()
-//							.add(new UserAccount(new User(users[i].getId()), accounts.get(j), true));
-//				}
-//			}
-//			accountRepository.saveAll(accounts);
-//		}
-//	}
+	@Transactional
+	public void addUserAccount() {
+		String url = apiService.getUser() + "user/all";
+		ResponseEntity<UserDto[]> user = restTemplate.getForEntity(url, UserDto[].class);
+		List<Account> accounts = accountRepository.findAll();
+		if (user.getStatusCode() == HttpStatus.OK) {
+			UserDto[] users = user.getBody();
+			for (int i = 0; i < users.length; i++) {
+				for (int j = i; j < accounts.size(); j += 25 - i * 2) {
+					accounts.get(j).getUserAccount()
+							.add(new UserAccount(new User(users[i].getId()), accounts.get(j), true));
+				}
+			}
+			accountRepository.saveAll(accounts);
+		}
+	}
 }

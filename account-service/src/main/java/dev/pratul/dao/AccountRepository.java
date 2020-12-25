@@ -41,4 +41,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	@Modifying
 	@Query("update Account acc set acc.status=:status where acc.id=:accountId")
 	public void updateAccountStatus(Long accountId, boolean status);
+
 }

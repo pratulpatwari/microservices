@@ -3,6 +3,9 @@ package dev.pratul.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +16,8 @@ import lombok.NoArgsConstructor;
 public class AccountDto {
 
 	private Long id;
+	@NotBlank(message = "Account Id cannot be blank")
+	@NotNull
 	private String accountId;
 	private String accountName;
 	private boolean status;

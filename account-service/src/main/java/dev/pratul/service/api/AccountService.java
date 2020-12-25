@@ -57,8 +57,8 @@ public interface AccountService {
 	 */
 	public AccountDto addAccount(AccountDto accountDto);
 
-//	public void addAccounts();
+	public void addAccounts();
 
-//	public void addUserAccount();
+	public void addUserAccount();
 
 }

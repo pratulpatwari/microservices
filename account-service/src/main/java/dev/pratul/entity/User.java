@@ -6,13 +6,15 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.NaturalId;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -30,7 +32,8 @@ public class User {
 
 	@Id
 	@Column(name = "id")
-	@NaturalId
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
+	@SequenceGenerator(name = "seq_gen", sequenceName = "users_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
 
 	@Column(name = "first_name")

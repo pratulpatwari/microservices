@@ -3,12 +3,14 @@ package dev.pratul.entity;
 import java.time.ZonedDateTime;
 
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,17 +28,18 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UserAccount {
-	
-	@EmbeddedId
-	private UserAccountKey id;
+
+	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
+	@SequenceGenerator(name = "seq_gen", sequenceName = "user_account_map_id_seq", schema = "public", allocationSize = 1)
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@MapsId("accountId")
 	@JoinColumn(name = "acc_id")
 	private Account account;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@MapsId("userId")
 	@JoinColumn(name = "user_id")
 	private User user;
 
@@ -57,7 +60,7 @@ public class UserAccount {
 		this.user = user;
 		this.status = status;
 	}
-	
+
 	public UserAccount(User user, Account account, boolean status) {
 		this.user = user;
 		this.account = account;
