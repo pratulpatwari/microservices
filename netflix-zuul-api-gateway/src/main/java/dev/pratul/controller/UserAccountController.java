@@ -30,10 +30,8 @@ public class UserAccountController {
 
 	@GetMapping("/account/user/{userId}")
 	public ResponseEntity<Set<AccountDto>> getAccount(@PathVariable("userId") long userId) {
-		log.debug("Entering {}", userId);
-		Set<AccountDto> accounts = accountService.getActiveAccountByUserId(userId);
-		log.debug("Leaving: {}", userId);
-		return new ResponseEntity<>(accounts, HttpStatus.OK);
+		log.debug("Processing getAccount with userId: {}", userId);
+		return new ResponseEntity<>(accountService.getActiveAccountByUserId(userId), HttpStatus.OK);
 	}
 
 	@GetMapping("/user/all")
