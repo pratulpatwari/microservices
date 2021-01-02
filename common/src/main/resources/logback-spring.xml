@@ -7,7 +7,9 @@
 			<pattern>%d{dd-MM-yyyy HH:mm:ss.SSS}|%mdc|%magenta([%thread])|%highlight(%-5level)|%logger{36}.%M|%msg%n</pattern>
 		</encoder>
 	</appender>
-	<root level="info">
+	<root level="error">
 		<appender-ref ref="STDOUT" />
 	</root>
+	<logger name="dev.pratul" level="debug"/>
+	
 </configuration>
