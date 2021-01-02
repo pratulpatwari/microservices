@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import dev.pratul.dto.AccountDto;
+import feign.Headers;
 
+@Headers({ "Accept=application/json" })
 @FeignClient("account-service")
 @RequestMapping(path = "/api")
 public interface AccountService {
