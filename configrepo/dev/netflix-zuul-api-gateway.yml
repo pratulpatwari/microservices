@@ -14,18 +14,17 @@ eureka:
       defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
     healthcheck:
       enabled: true
-  instance:
-    health-check-url:http://localhost:8082/health
+  instance: 
+    health-check-url: http://localhost:8082/health
 
 feign:
   hystrix:
     enabled: true
   httpclient:
     connection-timeout: 2000
-	    read-timeout: 2000
-	    max-connections: 200
-      max-connections-per-route: 50
-	
+    max-connections: 200
+    max-connections-per-route: 50
+  
 hystrix:
   command:
     zuulGateway:
@@ -37,3 +36,4 @@ hystrix:
         requestVolumeThreshold: 5
         errorThresholdPercentage: 50
         sleepWindowInMilliseconds: 1000
+
