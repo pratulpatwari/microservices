@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import dev.pratul.model.User;
+import dev.pratul.dto.UserDto;
 
 @FeignClient("user-service")
 @RequestMapping("/api")
@@ -17,11 +17,11 @@ public interface UserService {
 	 * Fetch the user by Id
 	 */
 	@GetMapping("/{id}")
-	User getUserById(@PathVariable(value = "id") String id);
+	UserDto getUserById(@PathVariable(value = "id") String id);
 
 	/*
 	 * fetch all the users belonging to an organization
 	 */
 	@GetMapping("/all")
-	Set<User> getAllUsers();
+	Set<UserDto> getAllUsers();
 }

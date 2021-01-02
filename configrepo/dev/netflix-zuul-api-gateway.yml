@@ -17,6 +17,16 @@ eureka:
   instance:
     health-check-url:http://localhost:8082/health
 
+feign:
+  hystrix:
+    enabled: true
+  client:
+    config:
+      feignName:
+        connectionTimeout: 5000
+	readTimeout: 5000
+	loggerLevel: full
+	
 hystrix:
   command:
     zuulGateway:

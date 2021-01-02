@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
 				if (userAccount.isStatus()) {
 					User user = userAccount.getUser();
 					accountDto.getUsers().add(new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
-							user.getStatus(), user.getLastName(), user.getEmail()));
+							user.getStatus(), user.getLastName(), user.getEmail(), null));
 				}
 			} catch (Exception ex) {
 				log.error("Exception while reading the user account ID: {}. Exception: {}", userAccount.getId(),
@@ -278,7 +278,7 @@ public class AccountServiceImpl implements AccountService {
 								? account.getUserAccount().stream()
 										.map(acc -> new UserDto(acc.getUser().getId(), acc.getUser().getFirstName(),
 												acc.getUser().getMiddleInitial(), acc.getUser().getStatus(),
-												acc.getUser().getLastName(), acc.getUser().getEmail()))
+												acc.getUser().getLastName(), acc.getUser().getEmail(), null))
 										.collect(Collectors.toList())
 								: null);
 			}

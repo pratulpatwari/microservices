@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.pratul.model.Account;
-import dev.pratul.model.User;
+import dev.pratul.dto.AccountDto;
+import dev.pratul.dto.UserDto;
 import dev.pratul.service.api.AccountService;
 import dev.pratul.service.api.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,13 +29,13 @@ public class UserAccountController {
 	}
 
 	@GetMapping("/account/user/{userId}")
-	public ResponseEntity<Set<Account>> getAccount(@PathVariable("userId") long userId) {
+	public ResponseEntity<Set<AccountDto>> getAccount(@PathVariable("userId") long userId) {
 		log.debug("Entering getAccount with userId: {}", userId);
 		return new ResponseEntity<>(accountService.getActiveAccountByUserId(userId), HttpStatus.OK);
 	}
 
 	@GetMapping("/user/all")
-	public ResponseEntity<Set<User>> getUsersByOrganization() {
+	public ResponseEntity<Set<UserDto>> getUsersByOrganization() {
 		return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
 	}
 }
