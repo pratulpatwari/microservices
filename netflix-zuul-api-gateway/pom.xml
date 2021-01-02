@@ -11,10 +11,12 @@
 	</parent>
 	<artifactId>netflix-zuul-api-gateway</artifactId>
 	<name>netflix-zuul-api-gateway</name>
-	<description>Netflix Zuul api gateway to serve all RestTemplate microservices</description>
+	<description>Netflix Zuul api gateway to serve all RestTemplate
+		microservices</description>
 
 	<properties>
 		<java.version>${java.version}</java.version>
+		<common.version>0.0.1-SNAPSHOT</common.version>
 	</properties>
 
 	<dependencies>
@@ -33,7 +35,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>dev.pratul</groupId>
+			<artifactId>common</artifactId>
+			<version>${common.version}</version>
 		</dependency>
 	</dependencies>
 

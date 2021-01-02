@@ -15,6 +15,7 @@ import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -28,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 @EntityScan(basePackages = { "dev.pratul" })
 @EnableTransactionManagement
 @EnableCircuitBreaker
+@ComponentScan("dev.pratul")
 public class AccountServiceApplication {
 
 	public static void main(String[] args) {

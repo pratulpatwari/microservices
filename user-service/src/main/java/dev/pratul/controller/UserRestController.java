@@ -20,7 +20,7 @@ import dev.pratul.dto.UserDto;
 import dev.pratul.service.api.ICustomUserDetailsService;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api")
 public class UserRestController {
 
 	private ICustomUserDetailsService userService;

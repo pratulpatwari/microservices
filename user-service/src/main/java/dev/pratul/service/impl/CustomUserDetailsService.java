@@ -9,13 +9,13 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.pratul.UserServiceException;
 import dev.pratul.dao.RolesRepository;
 import dev.pratul.dao.UserRepository;
 import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Role;
 import dev.pratul.entity.User;
+import dev.pratul.exception.UserServiceException;
 import dev.pratul.service.api.ICustomUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
 

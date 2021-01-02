@@ -5,6 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>data-load</artifactId>
 	<name>data-load</name>
+	<packaging>jar</packaging>
 	<description>Data load for asset and positions</description>
 	<parent>
 		<groupId>dev.pratul</groupId>
@@ -17,6 +18,7 @@
 		<java.version>${java.version}</java.version>
 		<exceptions.version>0.0.1-SNAPSHOT</exceptions.version>
 		<sonar.version>3.6.0.1398</sonar.version>
+		<webflux.version>2.4.1</webflux.version>
 	</properties>
 
 	<dependencies>
@@ -29,12 +31,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.projectreactor</groupId>
-			<artifactId>reactor-spring</artifactId>
-			<version>1.0.1.RELEASE</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>

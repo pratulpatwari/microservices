@@ -19,7 +19,7 @@ import dev.pratul.dto.AccountDto;
 import dev.pratul.service.api.AccountService;
 
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping("/api")
 public class AccountResourceController {
 
 	private final AccountService accountService;

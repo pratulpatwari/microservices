@@ -1,4 +1,4 @@
-package dev.pratul;
+package dev.pratul.config;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,5 +19,4 @@ public class CustomHttpTraceFilter extends HttpTraceFilter {
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 		return request.getServletPath().contains("actuator");
 	}
-
 }

@@ -10,8 +10,8 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<packaging>jar</packaging>
-	<artifactId>exceptions</artifactId>
-	<name>exceptions</name>
+	<artifactId>common</artifactId>
+	<name>common</name>
 	<description>Dependency for standard Exception handling in all projects</description>
 
 	<properties>

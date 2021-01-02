@@ -12,5 +12,8 @@ public class Asset {
 	private Long id;
 	private String symbol;
 	private String description;
-	private double marketValue;
+	private String figi;
+	private String mic;
+	private String currency;
+	private String type;
 }

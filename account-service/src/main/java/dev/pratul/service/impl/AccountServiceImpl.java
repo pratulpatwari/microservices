@@ -9,6 +9,10 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.MDC;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,15 +21,15 @@ import org.springframework.web.client.RestTemplate;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
-import dev.pratul.ApiServices;
-import dev.pratul.UserServiceException;
+import dev.pratul.config.ApiServices;
+import dev.pratul.config.Constants;
 import dev.pratul.dao.AccountRepository;
-import dev.pratul.dao.UserAccountRepository;
 import dev.pratul.dto.AccountDto;
 import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
+import dev.pratul.exception.UserServiceException;
 import dev.pratul.service.api.AccountService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,16 +38,13 @@ import lombok.extern.slf4j.Slf4j;
 public class AccountServiceImpl implements AccountService {
 
 	private final AccountRepository accountRepository;
-	private final UserAccountRepository userAccountRepository;
 	private final ApiServices apiService;
 	private final RestTemplate restTemplate;
 
 	private String accountNotFound = "Account not found";
 
-	public AccountServiceImpl(AccountRepository accountRepository, UserAccountRepository userAccountRepository,
-			ApiServices apiService, RestTemplate restTemplate) {
+	public AccountServiceImpl(AccountRepository accountRepository, ApiServices apiService, RestTemplate restTemplate) {
 		this.accountRepository = accountRepository;
-		this.userAccountRepository = userAccountRepository;
 		this.apiService = apiService;
 		this.restTemplate = restTemplate;
 	}
@@ -235,10 +236,13 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	private UserDto getUserById(Long userId) {
-		String url = apiService.getUser() + "user/" + userId;
-		ResponseEntity<UserDto> user = restTemplate.getForEntity(url, UserDto.class);
-		if (user.getStatusCode() == HttpStatus.OK) {
-			return user.getBody();
+		String url = apiService.getUser() + "/" + userId;
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(Constants.CORRELATION_ID_HEADER_NAME, MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME));
+		HttpEntity<UserDto> entity = new HttpEntity<UserDto>(headers);
+		ResponseEntity<UserDto> respEntity = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
+		if (respEntity.getStatusCode() == HttpStatus.OK) {
+			return respEntity.getBody();
 		} else {
 			log.error("User {} not found", userId);
 		}
@@ -250,7 +254,7 @@ public class AccountServiceImpl implements AccountService {
 	public AccountDto addAccount(AccountDto accountDto) {
 		log.debug("Entering addAccount() with details: {}", accountDto.toString());
 		UserAccount[] userAccounts = null;
-		String url = apiService.getUser() + "/user/list";
+		String url = apiService.getUser() + "/list";
 		List<Long> userIds = accountDto.getUsers().stream().map(UserDto::getId).collect(Collectors.toList());
 		ResponseEntity<UserDto[]> userDtos = restTemplate.postForEntity(url, userIds, UserDto[].class);
 		if (userDtos.getStatusCode() == HttpStatus.OK) {
@@ -311,7 +315,7 @@ public class AccountServiceImpl implements AccountService {
 
 	@Transactional
 	public void addUserAccount() {
-		String url = apiService.getUser() + "user/all";
+		String url = apiService.getUser() + "/all";
 		ResponseEntity<UserDto[]> user = restTemplate.getForEntity(url, UserDto[].class);
 		List<Account> accounts = accountRepository.findAll();
 		if (user.getStatusCode() == HttpStatus.OK) {

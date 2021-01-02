@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import dev.pratul.model.ClientPositionSummary;
-import dev.pratul.model.Position;
 
 public interface ClientPositionService {
 

@@ -2,23 +2,45 @@ package dev.pratul.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@ToString
+@Setter
 public class Quote {
 
-	@JsonProperty("o")
-	private double openPrice;
+	private double o;
 
-	@JsonProperty("h")
-	private double highPrice;
+	private double h;
 
-	@JsonProperty("l")
-	private double lowPrice;
+	private double l;
 
-	@JsonProperty("c")
-	private double currentPrice;
+	private double c;
 
-	@JsonProperty("pc")
-	private double lastClosePrice;
+	private double pc;
+
+	@JsonProperty("openPrice")
+	public double getOpenPrice() {
+		return this.o;
+	}
+
+	@JsonProperty("highPrice")
+	public double getHighPrice() {
+		return this.h;
+	}
+
+	@JsonProperty("lowPrice")
+	public double getLowPrice() {
+		return this.l;
+	}
+
+	@JsonProperty("currentPrice")
+	public double getCurrentPrice() {
+		return this.c;
+	}
+
+	@JsonProperty("lastClosePrice")
+	public double getLastClosePrice() {
+		return this.pc;
+	}
 }

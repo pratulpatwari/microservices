@@ -55,7 +55,7 @@ public class Account {
 					@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, updatable = true) })
 	private Set<User> user = new HashSet<>();
 
-	@OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private Set<UserAccount> userAccount = new HashSet<>();
 
 	@CreationTimestamp

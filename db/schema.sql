@@ -13,13 +13,16 @@ CREATE TABLE ACCOUNT(
 /* Asset table consists of all the possible assets in market*/
 DROP TABLE IF EXISTS ASSET CASCADE;
 CREATE TABLE ASSET (
-  	ID      BIGSERIAL,
-	SYMBOL 	VARCHAR(15) NOT NULL,
-	DESCRIPTION TEXT,
-	MARKET_VALUE FLOAT DEFAULT 0,
-	CREATE_DATE TIMESTAMP,
-	UPDATE_DATE TIMESTAMP,
-  	PRIMARY KEY (ID)
+        ID      BIGSERIAL,
+        SYMBOL  VARCHAR(15) NOT NULL,
+        DESCRIPTION TEXT,
+	FIGI VARCHAR(100),
+	MIC VARCHAR(50),
+	CURRENCY VARCHAR(10),
+	TYPE VARCHAR(100),
+        CREATE_DATE TIMESTAMP,
+        UPDATE_DATE TIMESTAMP,
+        PRIMARY KEY (ID)
 );
 
 /*Positions table describes the market value of each asset held by the account*/

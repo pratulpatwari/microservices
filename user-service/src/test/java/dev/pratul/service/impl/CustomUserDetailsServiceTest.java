@@ -18,13 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import dev.pratul.UserServiceException;
 import dev.pratul.dao.RolesRepository;
 import dev.pratul.dao.UserRepository;
 import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Role;
 import dev.pratul.entity.User;
+import dev.pratul.exception.UserServiceException;
 
 @SpringBootTest
 class CustomUserDetailsServiceTest {

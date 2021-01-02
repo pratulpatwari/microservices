@@ -2,6 +2,14 @@ server:
   port: 9093
 
 ################## Enable all the endpoints for actuator ###############
+
+spring:
+  jpa:
+    properties:
+      hibernate: 
+        jdbc:
+          batch_size: 50
+
 management:
   endpoints:
     web:
@@ -18,3 +26,9 @@ eureka:
   instance:
     health-check-url:http://localhost:9093/health
 
+data:
+  load:
+    uri: https://finnhub.io/api/v1/
+    token: bvfrvcn48v6p6kjqkkh0
+    stocks: /stock/symbol?exchange=US&
+    quote: /quote?symbol=

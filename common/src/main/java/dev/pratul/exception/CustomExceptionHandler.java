@@ -1,4 +1,4 @@
-package dev.pratul;
+package dev.pratul.exception;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;

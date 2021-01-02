@@ -1,4 +1,4 @@
-package dev.pratul;
+package dev.pratul.exception;
 
 public class UserServiceException extends RuntimeException{
 

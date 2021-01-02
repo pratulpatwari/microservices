@@ -16,7 +16,7 @@
 	</parent>
 	<properties>
 		<java.version>${java.version}</java.version>
-		<exceptions.version>0.0.1-SNAPSHOT</exceptions.version>
+		<common.version>0.0.1-SNAPSHOT</common.version>
 		<sonar.version>3.6.0.1398</sonar.version>
 	</properties>
 
@@ -27,8 +27,8 @@
 		</dependency>
 		<dependency>
 			<groupId>dev.pratul</groupId>
-			<artifactId>exceptions</artifactId>
-			<version>${exceptions.version}</version>
+			<artifactId>common</artifactId>
+			<version>${common.version}</version>
 		</dependency>
 
 		<!-- DB related dependencies -->

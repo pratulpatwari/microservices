@@ -15,6 +15,7 @@
 
 	<properties>
 		<java.version>${java.version}</java.version>
+		<common.version>0.0.1-SNAPSHOT</common.version>
 	</properties>
 
 	<dependencies>
@@ -37,8 +38,8 @@
 
 		<dependency>
 			<groupId>dev.pratul</groupId>
-			<artifactId>exceptions</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>common</artifactId>
+			<version>${common.version}</version>
 		</dependency>
 	</dependencies>
 

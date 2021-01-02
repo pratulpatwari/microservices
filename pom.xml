@@ -22,10 +22,11 @@
 		<spring.version>2.2.6.RELEASE</spring.version>
 		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
 		<postgresql>42.2.9</postgresql>
+		<reactor.version>1.0.1.RELEASE</reactor.version>
 	</properties>
 
 	<modules>
-		<module>exceptions</module>
+		<module>common</module>
 		<module>user-service</module>
 		<module>account-service</module>
 		<module>client-positions</module>
@@ -128,6 +129,11 @@
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
 				<version>${postgresql}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-webflux</artifactId>
+				<version>${spring.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

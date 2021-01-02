@@ -11,8 +11,11 @@ import lombok.Setter;
 @Getter
 @Configuration
 @RefreshScope
-@ConfigurationProperties(value = "service.uri")
-public class ApiServices {
-	
-	private String user;
+@ConfigurationProperties(value = "data.load")
+public class DataLoadConfig {
+
+	private String uri;
+	private String token;
+	private String stocks;
+	private String quote;
 }
