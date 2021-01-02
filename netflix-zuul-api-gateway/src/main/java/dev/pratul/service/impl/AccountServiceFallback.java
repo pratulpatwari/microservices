@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import dev.pratul.dto.AccountDto;
 import dev.pratul.service.api.AccountService;
 import feign.hystrix.FallbackFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class AccountServiceFallback implements FallbackFactory<AccountService> {
 
@@ -20,6 +22,7 @@ public class AccountServiceFallback implements FallbackFactory<AccountService> {
 
 			@Override
 			public Set<AccountDto> getActiveAccountByUserId(long userId) {
+				log.debug("Entering getAccount with userId: {}", userId);
 				// logic to send some error or data from cache if implemented
 				return new HashSet<>();
 			}

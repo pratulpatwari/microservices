@@ -9,6 +9,7 @@ import feign.RequestTemplate;
 
 @Component
 public class CorrelationInterceptor implements RequestInterceptor {
+
 	@Override
 	public void apply(RequestTemplate template) {
 		template.header(Constants.CORRELATION_ID_HEADER_NAME, MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME));

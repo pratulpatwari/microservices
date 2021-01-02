@@ -23,15 +23,17 @@ public class UserAccountController {
 	private final AccountService accountService;
 	private final UserService userService;
 
-	private UserAccountController(AccountService accountService, UserService userService) {
+	public UserAccountController(AccountService accountService, UserService userService) {
 		this.accountService = accountService;
 		this.userService = userService;
 	}
 
 	@GetMapping("/account/user/{userId}")
 	public ResponseEntity<Set<AccountDto>> getAccount(@PathVariable("userId") long userId) {
-		log.debug("Entering getAccount with userId: {}", userId);
-		return new ResponseEntity<>(accountService.getActiveAccountByUserId(userId), HttpStatus.OK);
+		log.debug("Entering {}", userId);
+		Set<AccountDto> accounts = accountService.getActiveAccountByUserId(userId);
+		log.debug("Leaving: {}", userId);
+		return new ResponseEntity<>(accounts, HttpStatus.OK);
 	}
 
 	@GetMapping("/user/all")
