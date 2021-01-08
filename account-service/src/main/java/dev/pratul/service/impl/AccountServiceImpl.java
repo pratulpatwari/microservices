@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -30,6 +31,8 @@ import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
 import dev.pratul.exception.UserServiceException;
+import dev.pratul.model.AccountMapper;
+import dev.pratul.model.Queries;
 import dev.pratul.service.api.AccountService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,115 +43,53 @@ public class AccountServiceImpl implements AccountService {
 	private final AccountRepository accountRepository;
 	private final ApiServices apiService;
 	private final RestTemplate restTemplate;
+	private final JdbcTemplate jdbcTemplate;
 
 	private String accountNotFound = "Account not found";
 
-	public AccountServiceImpl(AccountRepository accountRepository, ApiServices apiService, RestTemplate restTemplate) {
+	public AccountServiceImpl(AccountRepository accountRepository, ApiServices apiService, RestTemplate restTemplate,
+			JdbcTemplate jdbcTemplate) {
 		this.accountRepository = accountRepository;
 		this.apiService = apiService;
 		this.restTemplate = restTemplate;
+		this.jdbcTemplate = jdbcTemplate;
 	}
 
 	@Transactional
-	public AccountDto getAccountById(String id) {
+	public AccountDto getAccountById(long id) {
 		log.debug("Entering getAccountById() {}", id);
-		if (id == null) {
-			throw new IllegalArgumentException("No account provided");
-		}
-		Account account = accountRepository.findById(Long.valueOf(id))
-				.orElseThrow(() -> new NullPointerException(accountNotFound));
+		Account account = accountRepository.findById(id).orElseThrow(() -> new NoSuchElementException(accountNotFound));
 		log.debug("Leaving getAccountById() {}", id);
 		return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(), account.isStatus(),
 				null);
 	}
 
 	@Transactional
-	public AccountDto getAccountDetailsById(String id) {
-		log.debug("Entering getAccountDetailsById() {}", id);
-		Account account = accountRepository.findById(Long.valueOf(id))
-				.orElseThrow(() -> new NullPointerException(accountNotFound));
-		AccountDto accountDto = new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
-				account.isStatus());
-		for (UserAccount userAccount : account.getUserAccount()) {
-			try {
-				if (userAccount.isStatus()) {
-					User user = userAccount.getUser();
-					accountDto.getUsers().add(new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
-							user.getStatus(), user.getLastName(), user.getEmail(), null));
-				}
-			} catch (Exception ex) {
-				log.error("Exception while reading the user account ID: {}. Exception: {}", userAccount.getId(),
-						ex.getMessage());
-			}
-		}
-		log.debug("Leaving getAccountDetailsById() {} with # of users: {}", id, accountDto.getUsers().size());
-		return accountDto;
+	public AccountDto getAccountDetailsById(long id) {
+		log.debug("Entering getAccountDetailsById() with account id: {}", id);
+		AccountDto accounts = jdbcTemplate.queryForObject(Queries.GET_ACCOUNT_DETAILS, new Object[] { id },
+				new AccountMapper());
+		log.debug("Leaving getAccountDetailsById() with account id: {} and # of user: {}", id,
+				accounts.getUsers().size());
+		return accounts;
 	}
 
 	@Transactional
-	public List<AccountDto> getActiveAccountsByUser(String userId) {
-		log.debug("Entering getActiveAccountsByUser() for userId: {}", userId);
-		UserDto userDto = null;
-		try {
-			userDto = getUserById(Long.valueOf(userId));
-		} catch (Exception ex) {
-			log.error("Exception while fetching the user:");
-		}
-		if (userDto == null) {
-			throw new UserServiceException("Could not find the requested user");
-		}
-		Set<Account> accounts = accountRepository.findByUserIdAndStatusTrueAndUserAccountStatusTrue(userDto.getId());
-		if (accounts.isEmpty()) {
-			log.error("No accounts available for user: {}", userId);
-			throw new NoSuchElementException("No accounts available for user " + userId);
-		} else {
-			List<AccountDto> dto = new LinkedList<>();
-			for (Account acc : accounts) {
-				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), acc.isStatus(), null));
-			}
-			log.debug("Leaving getAllAccountsByUser(). # of accounts {} for user {}", dto.size(), userId);
-			return dto;
-		}
-	}
-
-	/*
-	 * In order to prevent multiple queries to DB, we are querying on the status
-	 * which will send only 2 separate queries depending upon the status and user
-	 */
-	@Transactional
-	public List<AccountDto> getAllAccountsByUser(String userId) {
+	public List<AccountDto> getAllAccountsByUser(long userId) {
 		log.debug("Entering getAllAccountsByUser() for userId: {}", userId);
-		Set<Account> activeAccounts = accountRepository
-				.findByUserIdAndStatusTrueAndUserAccountStatus(Long.valueOf(userId), true);
-		Set<Account> deactiveAccounts = accountRepository
-				.findByUserIdAndStatusTrueAndUserAccountStatus(Long.valueOf(userId), false);
-
-		if (activeAccounts.isEmpty() && deactiveAccounts.isEmpty()) {
-			log.error("No accounts available for user: {}", userId);
-			throw new NoSuchElementException("No accounts available for user " + userId);
-		} else {
-			List<AccountDto> dto = new LinkedList<>();
-			for (Account acc : activeAccounts) {
-				dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), true));
-			}
-
-			for (Account acc : deactiveAccounts) {
-				if (acc.isStatus()) {
-					dto.add(new AccountDto(acc.getId(), acc.getAccountId(), acc.getAccountName(), false));
-				}
-			}
-			log.debug("Leaving getAllAccountsByUser(). # of accounts {} for user {}", dto.size(), userId);
-			return dto;
-		}
+		List<AccountDto> accounts = jdbcTemplate.query(Queries.GET_ACCOUNTS_BY_USER, new Object[] { userId },
+				new AccountMapper());
+		log.debug("Leaving getAllAccountsByUser() for userId: {} with # of accounts: {}", userId, accounts.size());
+		return accounts;
 	}
 
 	@Transactional
 	public List<AccountDto> deactivateAccount(String accounts) {
-		log.debug("Entering updateAccountStatus() for # of accounts: {}", accounts);
 		if (accounts == null || accounts.isBlank()) {
 			throw new IllegalArgumentException(accountNotFound);
 		}
 		String[] accArr = accounts.split(",");
+		log.debug("Entering deactivateAccount() for # of accounts: {}", accArr.length);
 		Set<Long> accountIds = new HashSet<>();
 		for (int i = 0; i < accArr.length; i++) {
 			try {
@@ -158,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
 			}
 		}
 		if (accountIds.isEmpty()) {
-			throw new IllegalArgumentException("Invalid account");
+			throw new IllegalArgumentException("Invalid accounts");
 		}
 		List<AccountDto> accountDtos = new LinkedList<>();
 		Set<Account> accountList = accountRepository.findByIdIn(accountIds);
@@ -177,7 +118,7 @@ public class AccountServiceImpl implements AccountService {
 			accountDtos.add(new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
 					account.isStatus(), null));
 		}
-		log.debug("Leaving updateAccountStatus() for accountId: {}");
+		log.debug("Leaving deactivateAccount() for accountId: {}");
 		return accountDtos;
 
 	}
@@ -188,17 +129,17 @@ public class AccountServiceImpl implements AccountService {
 			account.getUserAccount().stream()
 					.filter(u -> u.getUser().getId().longValue() == userDto.getId().longValue()).findAny()
 					.ifPresentOrElse(u -> {
-						UserDto userDtoById = getUserById(userDto.getId());
+						UserDto userDtoById = getUserById(userDto.getId().longValue());
 						log.debug("User Object: ", userDtoById);
 						u.setStatus(status);
 					}, () -> {
-						UserDto userDtoDtoById = getUserById(userDto.getId());
-						if (userDtoDtoById != null) {
+						UserDto userDtoById = getUserById(userDto.getId());
+						if (userDtoById != null) {
 							User user = new User();
-							user.setFirstName(userDtoDtoById.getFirstName());
-							user.setLastName(userDtoDtoById.getLastName());
-							user.setMiddleInitial(userDtoDtoById.getMiddleInitial());
-							user.setStatus(userDtoDtoById.getStatus());
+							user.setFirstName(userDtoById.getFirstName());
+							user.setLastName(userDtoById.getLastName());
+							user.setMiddleInitial(userDtoById.getMiddleInitial());
+							user.setStatus(userDtoById.getStatus());
 							userAccount.add(new UserAccount(user, true));
 						} else {
 							log.debug(
@@ -207,7 +148,9 @@ public class AccountServiceImpl implements AccountService {
 						}
 					});
 		}
-		account.getUserAccount().addAll(userAccount);
+		if (!userAccount.isEmpty()) {
+			account.getUserAccount().addAll(userAccount);
+		}
 	}
 
 	@HystrixCommand(fallbackMethod = "getAccountFromCache", commandKey = "accountService")
@@ -221,21 +164,22 @@ public class AccountServiceImpl implements AccountService {
 		for (Account account : accounts) {
 			AccountDto accDto = accountMap.get(account.getAccountId());
 			if (accDto != null && !accDto.getUsers().isEmpty()) {
-				try {
-					if (account.isStatus()) {
-						userAccountsMapping(account, accDto.getUsers(), accDto.isStatus());
+				if (account.isStatus()) {
+					userAccountsMapping(account, accDto.getUsers(), accDto.isStatus());
+					try {
 						accountRepository.save(account);
+					} catch (IllegalArgumentException ex) {
+						log.error("Error while saving the account: {}. Exception: {}", account.getAccountId(),
+								ex.getMessage());
 					}
-				} catch (IllegalArgumentException ex) {
-					log.error("Error while saving the account: {}. Exception: {}", account.getAccountId(),
-							ex.getMessage());
 				}
 			}
 		}
+		log.debug("Leaving updateUserAccount() with # of accounts: {}", accountDtos.size());
 		return result;
 	}
 
-	private UserDto getUserById(Long userId) {
+	private UserDto getUserById(long userId) {
 		String url = apiService.getUser() + "/" + userId;
 		HttpHeaders headers = new HttpHeaders();
 		headers.set(Constants.CORRELATION_ID_HEADER_NAME, MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME));
@@ -249,27 +193,37 @@ public class AccountServiceImpl implements AccountService {
 		return null;
 	}
 
+	private UserDto[] getUsersById(long[] userId) {
+		String url = apiService.getUser() + "/list";
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(Constants.CORRELATION_ID_HEADER_NAME, MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME));
+		HttpEntity<UserDto[]> entity = new HttpEntity<UserDto[]>(headers);
+		ResponseEntity<UserDto[]> respEntity = restTemplate.postForEntity(url, entity, UserDto[].class);
+		if (respEntity.getStatusCode() == HttpStatus.OK) {
+			return respEntity.getBody();
+		} else {
+			log.error("User {} not found", userId);
+		}
+		return null;
+	}
+
 	@HystrixCommand(fallbackMethod = "getAccountFromCache", commandKey = "accountService")
 	@Transactional
 	public AccountDto addAccount(AccountDto accountDto) {
 		log.debug("Entering addAccount() with details: {}", accountDto.toString());
 		UserAccount[] userAccounts = null;
-		String url = apiService.getUser() + "/list";
-		List<Long> userIds = accountDto.getUsers().stream().map(UserDto::getId).collect(Collectors.toList());
-		ResponseEntity<UserDto[]> userDtos = restTemplate.postForEntity(url, userIds, UserDto[].class);
-		if (userDtos.getStatusCode() == HttpStatus.OK) {
-			UserDto[] userDto = userDtos.getBody();
-			if (userDto != null && userDto.length > 0) {
-				userAccounts = new UserAccount[userDto.length];
-				for (int i = 0; i < userDto.length; i++) {
-					userAccounts[i] = new UserAccount(new User(userDto[i].getId()), true);
-				}
+		long[] users = accountDto.getUsers().stream().mapToLong(acc -> acc.getId()).toArray();
+		UserDto[] userDto = getUsersById(users);
+		if (userDto != null && userDto.length > 0) {
+			userAccounts = new UserAccount[userDto.length];
+			for (int i = 0; i < userDto.length; i++) {
+				userAccounts[i] = new UserAccount(new User(userDto[i].getId()), true);
 			}
 		}
 		Account account = new Account(accountDto.getAccountId(), accountDto.getAccountName(),
 				userAccounts != null ? userAccounts : null);
 		try {
-			account = accountRepository.save(account);
+			accountRepository.save(account);
 			if (account.getId() != null) {
 				log.debug("Leaving addAccount() with Id: {}", accountDto.getId());
 				return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
@@ -280,7 +234,7 @@ public class AccountServiceImpl implements AccountService {
 												acc.getUser().getMiddleInitial(), acc.getUser().getStatus(),
 												acc.getUser().getLastName(), acc.getUser().getEmail(), null))
 										.collect(Collectors.toList())
-								: null);
+								: new ArrayList<>());
 			}
 		} catch (Exception ex) {
 			log.error("Error while saving the accounts: {}", ex.getMessage());

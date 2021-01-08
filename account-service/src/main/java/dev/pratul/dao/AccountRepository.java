@@ -18,6 +18,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
 	public Set<Account> findByIdIn(Set<Long> ids);
 	
+	public Set<Account> findByIdIn(long[] ids);
+	
 	public Set<Account> findByIdIn(Long[] ids);
 
 	public Optional<Account> findByAccountId(String accountId);

@@ -29,12 +29,12 @@ public class AccountResourceController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<AccountDto> getAccountById(@PathVariable(value = "id") String id) {
+	public ResponseEntity<AccountDto> getAccountById(@PathVariable(value = "id") long id) {
 		return new ResponseEntity<>(accountService.getAccountById(id), HttpStatus.OK);
 	}
 
 	@GetMapping("/details/{id}")
-	public ResponseEntity<AccountDto> getAccountDetailsById(@PathVariable(value = "id") String id) {
+	public ResponseEntity<AccountDto> getAccountDetailsById(@PathVariable(value = "id") long id) {
 		return new ResponseEntity<>(accountService.getAccountDetailsById(id), HttpStatus.OK);
 	}
 
@@ -43,13 +43,8 @@ public class AccountResourceController {
 		return new ResponseEntity<>(accountService.deactivateAccount(accounts), HttpStatus.OK);
 	}
 
-	@GetMapping("/user/active/{id}")
-	public ResponseEntity<List<AccountDto>> getActiveAccountsByUser(@PathVariable(value = "id") String userId) {
-		return new ResponseEntity<>(accountService.getActiveAccountsByUser(userId), HttpStatus.OK);
-	}
-
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<List<AccountDto>> getAllAccountsByUser(@PathVariable(value = "userId") String userId) {
+	public ResponseEntity<List<AccountDto>> getAllAccountsByUser(@PathVariable(value = "userId") long userId) {
 		return new ResponseEntity<>(accountService.getAllAccountsByUser(userId), HttpStatus.OK);
 	}
 
