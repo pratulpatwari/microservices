@@ -57,10 +57,4 @@ public class AccountResourceController {
 	public ResponseEntity<AccountDto> addAccount(@RequestBody @Valid AccountDto accountDto) {
 		return new ResponseEntity<>(accountService.addAccount(accountDto), HttpStatus.CREATED);
 	}
-
-//	@PostMapping("/sample")
-//	public void addAccounts() {
-//		accountService.addAccounts();
-//		accountService.addUserAccount();
-//	}
 }

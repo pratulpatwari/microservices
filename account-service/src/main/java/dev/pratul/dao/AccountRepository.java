@@ -30,7 +30,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
 	public Set<Account> findByUser(User user);
 	
-	public Set<Account> findByUserAccount_UserId(Long userId);
+	public Set<Account> findByUserAccountUserId(Long userId);
 
 	public Set<Account> findByUserAndStatusTrueAndUserAccountStatusTrue(User user);
 

@@ -24,11 +24,11 @@ import org.springframework.web.client.RestTemplate;
 
 import dev.pratul.dao.AccountRepository;
 import dev.pratul.dto.AccountDto;
+import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
 import dev.pratul.model.AccountMapper;
-import dev.pratul.model.Queries;
 import dev.pratul.service.api.AccountService;
 
 @SpringBootTest
@@ -75,48 +75,47 @@ class AccountServiceImplTest {
 
 	@Test
 	void testGetAccountById() {
-		Mockito.when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+		Mockito.when(accountRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(account));
 		AccountDto result = accountService.getAccountById(account.getId());
 		assertEquals(1, result.getId());
 		assertTrue(result.isStatus());
+		assertEquals(0, result.getUsers().size());
+		Mockito.when(accountRepository.findById(Mockito.anyLong())).thenThrow(NoSuchElementException.class);
 		assertThrows(NoSuchElementException.class, () -> {
 			accountService.getAccountById(2L);
-		});
-		assertThrows(NoSuchElementException.class, () -> {
-			accountService.getAccountById(0);
 		});
 	}
 
 	@Test
 	void testAccountDetailsById() {
+		AccountDto accountDto = new AccountDto();
+		accountDto.setAccountId("1234");
+		accountDto.setId(1L);
+		accountDto.setStatus(true);
+		accountDto.setAccountName("Domestic Account");
+		Mockito.when(jdbcTemplate.queryForObject(Mockito.any(), Mockito.any(AccountMapper.class), Mockito.any()))
+				.thenReturn(accountDto);
+		AccountDto result = accountService.getAccountDetailsById(1L);
+		assertEquals(0, result.getUsers().size());
+		assertEquals("Domestic Account", result.getAccountName());
+		assertEquals(1L, result.getId());
+		assertEquals("1234", result.getAccountId());
+		Mockito.when(jdbcTemplate.queryForObject(Mockito.any(), Mockito.any(AccountMapper.class), Mockito.any()))
+				.thenReturn(null);
 		assertThrows(NoSuchElementException.class, () -> {
-			accountService.getAccountDetailsById(0);
-		}, "No account provided");
-		Mockito.when(accountRepository.findById(Mockito.anyLong())).thenReturn(null);
-		assertThrows(NullPointerException.class, () -> {
 			accountService.getAccountDetailsById(1L);
 		});
-		Mockito.when(accountRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(account));
-		AccountDto accountDto = accountService.getAccountDetailsById(1L);
-		assertEquals(account.getId(), accountDto.getId());
-		assertEquals(1, accountDto.getUsers().size());
-		account.getUserAccount().forEach(u -> {
-			u.setStatus(false);
-		});
-		AccountDto accountDto1 = accountService.getAccountDetailsById(1L);
-		assertEquals(1, accountDto.getUsers().size());
-		assertEquals(0, accountDto1.getUsers().size());
 	}
 
 	@Test
 	void testGetAllAccountsByUser() {
 		AccountDto accountDtoActive = new AccountDto(1L, "fj23kb", "Global Account", true);
-		AccountDto accountDtoDeactive = new AccountDto(2L, "sdf32", "Global Account", true);
+		UserDto userDto = new UserDto(1L, "Pratul", "K", "Active", "Patwari", "pratul.patwari@gmail.com", null);
+		accountDtoActive.getUsers().add(userDto);
 		List<AccountDto> accounts = new ArrayList<>();
 		accounts.add(accountDtoActive);
-		accounts.add(accountDtoDeactive);
-		Mockito.when(jdbcTemplate.query(Mockito.eq(Queries.GET_ACCOUNTS_BY_USER), new Object[] { Mockito.anyLong() },
-				Mockito.eq(new AccountMapper()))).thenReturn(accounts);
+		Mockito.when(jdbcTemplate.query(Mockito.any(), Mockito.any(AccountMapper.class), Mockito.any()))
+				.thenReturn(accounts);
 		List<AccountDto> result = accountService.getAllAccountsByUser(1);
 		assertEquals(1, result.size());
 	}

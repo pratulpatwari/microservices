@@ -65,9 +65,4 @@ public interface AccountService {
 	 *          account to list of users
 	 */
 	public AccountDto addAccount(AccountDto accountDto);
-
-	public void addAccounts();
-
-	public void addUserAccount();
-
 }
