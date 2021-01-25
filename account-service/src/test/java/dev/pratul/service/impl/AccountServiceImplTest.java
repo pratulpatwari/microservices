@@ -1,5 +1,6 @@
 package dev.pratul.service.impl;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -118,5 +119,37 @@ class AccountServiceImplTest {
 				.thenReturn(accounts);
 		List<AccountDto> result = accountService.getAllAccountsByUser(1);
 		assertEquals(1, result.size());
+	}
+
+	@Test
+	void testDeactivateAccount() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			accountService.deactivateAccount(null);
+		}, "Account not found");
+		assertThrows(IllegalArgumentException.class, () -> {
+			accountService.deactivateAccount("12k,pratul12,sd");
+		}, "Invalid accounts");
+		Mockito.when(accountRepository.findByIdIn(Mockito.anySet())).thenReturn(new HashSet<>());
+		assertThrows(IllegalArgumentException.class, () -> {
+			accountService.deactivateAccount("1,2,3,4");
+		}, "Account not found");
+		Mockito.when(accountRepository.findByIdIn(Mockito.anySet()))
+				.thenReturn(Stream.of(account).collect(Collectors.toSet()));
+		Mockito.when(accountRepository.saveAll(Mockito.anyIterable()))
+				.thenReturn(Stream.of(account).collect(Collectors.toList()));
+		List<AccountDto> accounts = accountService.deactivateAccount("1");
+		assertEquals(1, accounts.size());
+		assertEquals(1L, accounts.get(0).getId());
+		assertFalse(accounts.get(0).isStatus());
+	}
+
+	@Test
+	void testUpdateUserAccount() {
+		AccountDto accountDtoActive = new AccountDto(1L, "fj23kb", "Global Account", true);
+		Mockito.when(accountRepository.findByAccountIdIn(Mockito.anyCollection())).thenReturn(new HashSet<>());
+		List<AccountDto> accounts = accountService
+				.updateUserAccount(Stream.of(accountDtoActive).collect(Collectors.toList()));
+		assertEquals(0, accounts.size());
+		
 	}
 }
