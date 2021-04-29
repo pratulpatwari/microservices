@@ -17,4 +17,4 @@ Spring security,
 Eureka Discovery Server/Client,
 Hystrix Circuit Breaker,
 Zuul/Spring-cloud-api-gateway,
-PostgreSql DB
+PostgreSql DB,
