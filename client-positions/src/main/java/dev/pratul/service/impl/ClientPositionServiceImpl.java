@@ -51,6 +51,15 @@ class ClientPositionServiceImpl implements ClientPositionService {
 		return null;
 	}
 
+	public List<ClientPositionSummary> getFallbackClientPosition(long userId, Map<String, String> params) {
+		log.warn(
+				"Error while fetching the accounts from account-service for user {}. Entering getFallbackClientPosition()",
+				userId);
+
+		// make a call to server cache to return the last fetched client-positions
+		return List.of();
+	}
+
 	private LocalDate getLocalDateByString(String date) {
 		if (!date.isBlank()) {
 			try {
@@ -112,6 +121,6 @@ class ClientPositionServiceImpl implements ClientPositionService {
 				clientId);
 
 		// make a call to server cache to return the last fetched client-positions
-		return new ArrayList<>();
+		return List.of();
 	}
 }
