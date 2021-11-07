@@ -3,10 +3,6 @@ package dev.pratul.service.impl;
 import java.util.List;
 import java.util.Map;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,8 +14,6 @@ import dev.pratul.service.api.ClientPositionService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.TcpClient;
 
 @Slf4j
 @Service

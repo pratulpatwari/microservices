@@ -1,9 +1,6 @@
 server:
   port: 9092
 
-spring:
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
 ################## Enable all the endpoints for actuator ###############
 management:
   endpoints:

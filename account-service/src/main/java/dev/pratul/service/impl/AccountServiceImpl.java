@@ -1,7 +1,6 @@
 package dev.pratul.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -9,18 +8,13 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
 import org.slf4j.MDC;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import dev.pratul.config.ApiServices;
 import dev.pratul.config.Constants;
@@ -34,7 +28,6 @@ import dev.pratul.exception.UserServiceException;
 import dev.pratul.model.AccountMapper;
 import dev.pratul.model.Queries;
 import dev.pratul.service.api.AccountService;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -43,20 +36,20 @@ public class AccountServiceImpl implements AccountService {
 
 	private final AccountRepository accountRepository;
 	private final ApiServices apiService;
-	private final RestTemplate restTemplate;
 	private final JdbcTemplate jdbcTemplate;
+	private final WebClient.Builder webClientBuilder;
 
 	private String accountNotFound = "Account not found";
 
 	public AccountServiceImpl(AccountRepository accountRepository, ApiServices apiService,
-			RestTemplate restTemplate, JdbcTemplate jdbcTemplate) {
+			JdbcTemplate jdbcTemplate, WebClient.Builder webClientBuilder) {
 		this.accountRepository = accountRepository;
 		this.apiService = apiService;
-		this.restTemplate = restTemplate;
+		this.webClientBuilder = webClientBuilder;
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public AccountDto getAccountById(long id) {
 		log.debug("Entering getAccountById() {}", id);
 		Account account = accountRepository.findById(id)
@@ -66,7 +59,7 @@ public class AccountServiceImpl implements AccountService {
 				account.isStatus());
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public AccountDto getAccountDetailsById(long id) {
 		log.debug("Entering getAccountDetailsById() with account id: {}", id);
 		AccountDto account = jdbcTemplate.queryForObject(Queries.GET_ACCOUNT_DETAILS, new AccountMapper(), id);
@@ -80,7 +73,7 @@ public class AccountServiceImpl implements AccountService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<AccountDto> getAllAccountsByUser(long userId) {
 		log.debug("Entering getAllAccountsByUser() for userId: {}", userId);
 		List<AccountDto> accounts = jdbcTemplate.query(Queries.GET_ACCOUNTS_BY_USER, new AccountMapper(),
@@ -91,47 +84,27 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Transactional
-	public List<AccountDto> deactivateAccount(@NonNull String accounts) {
-		String[] accArr = accounts.split(",");
-		log.debug("Entering deactivateAccount() for # of accounts: {}", accArr.length);
-		Set<Long> accountIds = new HashSet<>();
-		for (int i = 0; i < accArr.length; i++) {
-			try {
-				accountIds.add(Long.valueOf(accArr[i]));
-			} catch (NumberFormatException ex) {
-				log.error("Could not parse the account string: {}", ex.getMessage());
-			}
+	public boolean deactivateAccount(long accountId) {
+		log.debug("Entering deactivateAccount() for accounts: {}", accountId);
+		Account account = accountRepository.findById(accountId)
+					.orElseThrow(() -> new NoSuchElementException("Invalid account"));
+					account.getUserAccount().stream().forEach(acc -> acc.setStatus(false));
+			account.setStatus(false);
+		try {	
+			accountRepository.save(account);
+			log.debug("Leaving deactivateAccount() for account {}", accountId);
+		} catch (IllegalArgumentException e) {
+			log.error("Exception while deactivating the account", e.getMessage());
+			throw new IllegalArgumentException("Could not deactivate account. Please try again");
 		}
-		if (accountIds.isEmpty()) {
-			throw new IllegalArgumentException("Invalid accounts");
-		}
-		List<AccountDto> accountDtos = new LinkedList<>();
-		Set<Account> accountList = accountRepository.findByIdIn(accountIds);
-		if (accountList.isEmpty()) {
-			throw new IllegalArgumentException(accountNotFound);
-		}
-		for (Account account : accountList) {
-			// deactivate account for all users when account is being deactivate
-			if (account.isStatus()) {
-				account.getUserAccount().stream().forEach(acc -> acc.setStatus(false));
-			}
-			account.setStatus(!account.isStatus());
-		}
-		final List<Account> updatedAccounts = accountRepository.saveAll(accountList);
-		for (Account account : updatedAccounts) {
-			accountDtos.add(new AccountDto(account.getId(), account.getAccountId(),
-					account.getAccountName(), account.isStatus(), null));
-		}
-		log.debug("Leaving deactivateAccount() for accountId: {}");
-		return accountDtos;
-
+		return true;
 	}
 
 	private void userAccountsMapping(Account account, List<UserDto> userDtos, boolean status) {
 		List<UserAccount> userAccount = new ArrayList<>();
 		for (UserDto userDto : userDtos) {
 			account.getUserAccount().stream()
-					.filter(u -> u.getUser().getId().longValue() == userDto.getId().longValue())
+					.filter(u -> u.getUser().getId().equals(userDto.getId()))
 					.findAny().ifPresentOrElse(u -> {
 						UserDto userDtoById = getUserById(userDto.getId().longValue());
 						log.debug("User Object: ", userDtoById);
@@ -182,30 +155,18 @@ public class AccountServiceImpl implements AccountService {
 
 	private UserDto getUserById(long userId) {
 		String url = apiService.getUser() + "/" + userId;
-		HttpHeaders headers = new HttpHeaders();
-		headers.set(Constants.CORRELATION_ID_HEADER_NAME, MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME));
-		HttpEntity<UserDto> entity = new HttpEntity<>(headers);
-		ResponseEntity<UserDto> respEntity = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
-		if (respEntity.getStatusCode() == HttpStatus.OK) {
-			return respEntity.getBody();
-		} else {
-			log.error("User {} not found", userId);
-		}
-		return null;
+		return webClientBuilder.build().get().uri(url)
+				.header(Constants.CORRELATION_ID_HEADER_NAME,
+						MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME))
+				.retrieve().bodyToMono(UserDto.class).block();
 	}
 
-	private UserDto[] getUsersById(long[] userId) {
+	private List<UserDto> getUsersById(long[] userId) {
 		String url = apiService.getUser() + "/list";
-		HttpHeaders headers = new HttpHeaders();
-		headers.set(Constants.CORRELATION_ID_HEADER_NAME, MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME));
-		HttpEntity<UserDto[]> entity = new HttpEntity<>(headers);
-		ResponseEntity<UserDto[]> respEntity = restTemplate.postForEntity(url, entity, UserDto[].class);
-		if (respEntity.getStatusCode() == HttpStatus.OK) {
-			return respEntity.getBody();
-		} else {
-			log.error("User {} not found", userId);
-		}
-		return new UserDto[0];
+		return webClientBuilder.build().get().uri(url)
+				.header(Constants.CORRELATION_ID_HEADER_NAME,
+						MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME))
+				.retrieve().bodyToFlux(UserDto.class).collectList().block();
 	}
 
 	@HystrixCommand(fallbackMethod = "getAccountFromCache", commandKey = "accountService")
@@ -214,11 +175,11 @@ public class AccountServiceImpl implements AccountService {
 		log.debug("Entering addAccount() with details: {}", accountDto.toString());
 		UserAccount[] userAccounts = null;
 		long[] users = accountDto.getUsers().stream().mapToLong(UserDto::getId).toArray();
-		UserDto[] userDto = getUsersById(users);
-		if (userDto != null && userDto.length > 0) {
-			userAccounts = new UserAccount[userDto.length];
-			for (int i = 0; i < userDto.length; i++) {
-				userAccounts[i] = new UserAccount(new User(userDto[i].getId()), true);
+		List<UserDto> userDto = getUsersById(users);
+		if (userDto != null && !userDto.isEmpty()) {
+			userAccounts = new UserAccount[userDto.size()];
+			for (int i = 0; i < userDto.size(); i++) {
+				userAccounts[i] = new UserAccount(new User(userDto.get(i).getId()), true);
 			}
 		}
 		Account account = new Account(accountDto.getAccountId(), accountDto.getAccountName(),

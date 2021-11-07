@@ -39,7 +39,7 @@ public class AccountResourceController {
 	}
 
 	@PutMapping("/deactive")
-	public ResponseEntity<List<AccountDto>> deactivateAccount(@RequestParam("accounts") String accounts) {
+	public ResponseEntity<Boolean> deactivateAccount(@RequestParam("accounts") long accounts) {
 		return new ResponseEntity<>(accountService.deactivateAccount(accounts), HttpStatus.OK);
 	}
 
