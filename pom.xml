@@ -21,8 +21,9 @@
 		<maven.compiler.release>11</maven.compiler.release>
 		<spring.version>2.2.6.RELEASE</spring.version>
 		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
-		<postgresql>42.2.9</postgresql>
+		<postgresql>42.2.23</postgresql>
 		<reactor.version>1.0.1.RELEASE</reactor.version>
+		<poi.version>5.0.0</poi.version>
 	</properties>
 
 	<modules>
@@ -34,6 +35,17 @@
 		<module>data-load</module>
 	</modules>
 	<dependencies>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
 
 		<!-- Spring boot dependencies -->
 		<dependency>

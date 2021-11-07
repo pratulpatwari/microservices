@@ -84,8 +84,8 @@ class CustomUserDetailsServiceTest {
 		assertEquals("Pratul", userDto.getFirstName());
 		assertEquals("Patwari", userDto.getLastName());
 		assertNotNull(userDto.getRoles());
-		assertEquals(1, userDto.getRoles().length);
-		assertEquals("Technical", userDto.getRoles()[0].getName());
+		assertEquals(1, userDto.getRoles().size());
+		assertEquals("Technical", userDto.getRoles().get(0).getName());
 		Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(null);
 		assertThrows(NullPointerException.class, () -> {
 			userService.getUserById(1L);
@@ -95,7 +95,7 @@ class CustomUserDetailsServiceTest {
 			userRepository.findById(1L);
 		});
 		Mockito.when(userRepository.findById(null)).thenReturn(null);
-		assertThrows(IllegalArgumentException.class, () -> {
+		assertThrows(NullPointerException.class, () -> {
 			userService.getUserById(null);
 		}, "No user provided.");
 	}
@@ -104,7 +104,7 @@ class CustomUserDetailsServiceTest {
 	void testGetUsersByIds() {
 		List<Long> userList = Stream.of(Long.valueOf(1)).collect(Collectors.toList());
 		Mockito.when(userRepository.findAllById(null)).thenReturn(null);
-		assertThrows(IllegalArgumentException.class, () -> {
+		assertThrows(NullPointerException.class, () -> {
 			userService.getUsersByIds(null);
 		}, "No users provided to be searched");
 		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(new ArrayList<>());
@@ -117,7 +117,7 @@ class CustomUserDetailsServiceTest {
 		List<UserDto> userDtos = userService.getUsersByIds(Stream.of(1L).collect(Collectors.toList()));
 		assertEquals(1, userDtos.size());
 		assertEquals("Pratul", userDtos.get(0).getFirstName());
-		assertEquals(1, userDtos.get(0).getRoles().length);
+		assertEquals(1, userDtos.get(0).getRoles().size());
 
 		Mockito.when(userRepository.findAllById(Mockito.anyIterable()))
 				.thenReturn(Stream.of(user1).collect(Collectors.toList()));
@@ -128,7 +128,7 @@ class CustomUserDetailsServiceTest {
 		assertEquals(1, allUserDtos.size());
 		assertEquals(2L, allUserDtos.get(0).getId());
 		assertEquals("John", allUserDtos.get(0).getFirstName());
-		assertEquals("Business", allUserDtos.get(0).getRoles()[0].getName());
+		assertEquals("Business", allUserDtos.get(0).getRoles().get(0).getName());
 
 		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(users);
 		List<Long> ids1 = new ArrayList<>();
@@ -143,7 +143,7 @@ class CustomUserDetailsServiceTest {
 	@Test
 	void testGetUsersByUserIds() {
 		Mockito.when(userRepository.findAllById(null)).thenReturn(null);
-		assertThrows(IllegalArgumentException.class, () -> {
+		assertThrows(NullPointerException.class, () -> {
 			userService.getUsersByUserIds(null);
 		}, "No users provided to be searched");
 		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(new ArrayList<>());
@@ -156,7 +156,7 @@ class CustomUserDetailsServiceTest {
 		List<UserDto> userDtos = userService.getUsersByUserIds("1");
 		assertEquals(1, userDtos.size());
 		assertEquals("Pratul", userDtos.get(0).getFirstName());
-		assertEquals(1, userDtos.get(0).getRoles().length);
+		assertEquals(1, userDtos.get(0).getRoles().size());
 
 		Mockito.when(userRepository.findAllById(Mockito.anyIterable()))
 				.thenReturn(Stream.of(user1).collect(Collectors.toList()));
@@ -164,7 +164,7 @@ class CustomUserDetailsServiceTest {
 		assertEquals(1, allUserDtos.size());
 		assertEquals(2L, allUserDtos.get(0).getId());
 		assertEquals("John", allUserDtos.get(0).getFirstName());
-		assertEquals("Business", allUserDtos.get(0).getRoles()[0].getName());
+		assertEquals("Business", allUserDtos.get(0).getRoles().get(0).getName());
 
 		Mockito.when(userRepository.findAllById(Mockito.anyIterable())).thenReturn(users);
 		List<UserDto> multipleUserDtos = userService.getUsersByUserIds("1,2");
@@ -182,17 +182,15 @@ class CustomUserDetailsServiceTest {
 		assertThrows(IllegalArgumentException.class, () -> {
 			userService.registerUser(userDto);
 		}, "Missing role. User must belong to a role");
-
-		RoleDto[] roleDtos = new RoleDto[1];
-		roleDtos[0] = new RoleDto(1, "Technical");
-		userDto.setRoles(roleDtos);
+		List<Role> roles = List.of(new Role(1, "Technical", "Technical members of the team"));
+		userDto.setRoles(List.of(new RoleDto(1, "Technical")));
 		Mockito.when(roleRepository.findByIdIn(Mockito.any())).thenReturn(roles);
 		Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
 		UserDto result = userService.registerUser(userDto);
-		assertEquals(1, result.getRoles().length);
-		assertEquals("Technical", result.getRoles()[0].getName());
+		assertEquals(1, result.getRoles().size());
+		assertEquals("Technical", result.getRoles().get(0).getName());
 		assertEquals("Pratul", result.getFirstName());
-		assertNotEquals(2L, result.getRoles()[0].getId());
+		assertNotEquals(2L, result.getRoles().get(0).getId());
 	}
 
 	@Test
@@ -202,17 +200,15 @@ class CustomUserDetailsServiceTest {
 			userService.updateUserDetails(userDto);
 		}, "Could not identify the user");
 		userDto.setId(1L);
-		RoleDto[] roleDtos = new RoleDto[1];
-		roleDtos[0] = new RoleDto(2, "Business");
-		userDto.setRoles(roleDtos);
+		userDto.setRoles(List.of(new RoleDto(2, "Business")));
 		Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
 		Mockito.when(roleRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(role1));
 		UserDto updatedUserDto = userService.updateUserDetails(userDto);
 		assertEquals(1L, updatedUserDto.getId());
 		assertEquals("deactive", updatedUserDto.getStatus());
-		assertEquals("Business", updatedUserDto.getRoles()[0].getName());
+		assertEquals("Business", updatedUserDto.getRoles().get(0).getName());
 		userDto.setRoles(null);
-		assertThrows(IllegalArgumentException.class, () -> {
+		assertThrows(NullPointerException.class, () -> {
 			userService.updateUserDetails(userDto);
 		}, "Roles cannot be blank. Please select atleast one role");
 	}

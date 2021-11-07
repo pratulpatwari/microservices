@@ -34,6 +34,7 @@ import dev.pratul.exception.UserServiceException;
 import dev.pratul.model.AccountMapper;
 import dev.pratul.model.Queries;
 import dev.pratul.service.api.AccountService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -47,8 +48,8 @@ public class AccountServiceImpl implements AccountService {
 
 	private String accountNotFound = "Account not found";
 
-	public AccountServiceImpl(AccountRepository accountRepository, ApiServices apiService, RestTemplate restTemplate,
-			JdbcTemplate jdbcTemplate) {
+	public AccountServiceImpl(AccountRepository accountRepository, ApiServices apiService,
+			RestTemplate restTemplate, JdbcTemplate jdbcTemplate) {
 		this.accountRepository = accountRepository;
 		this.apiService = apiService;
 		this.restTemplate = restTemplate;
@@ -58,9 +59,11 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public AccountDto getAccountById(long id) {
 		log.debug("Entering getAccountById() {}", id);
-		Account account = accountRepository.findById(id).orElseThrow(() -> new NoSuchElementException(accountNotFound));
+		Account account = accountRepository.findById(id)
+				.orElseThrow(() -> new NoSuchElementException(accountNotFound));
 		log.debug("Leaving getAccountById() {}", id);
-		return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(), account.isStatus());
+		return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
+				account.isStatus());
 	}
 
 	@Transactional
@@ -70,6 +73,7 @@ public class AccountServiceImpl implements AccountService {
 		if (account != null) {
 			log.debug("Leaving getAccountDetailsById() with account id: {} and # of user: {}", id,
 					account.getUsers().size());
+
 			return account;
 		} else {
 			throw new NoSuchElementException(accountNotFound);
@@ -79,16 +83,15 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional
 	public List<AccountDto> getAllAccountsByUser(long userId) {
 		log.debug("Entering getAllAccountsByUser() for userId: {}", userId);
-		List<AccountDto> accounts = jdbcTemplate.query(Queries.GET_ACCOUNTS_BY_USER, new AccountMapper(), userId);
-		log.debug("Leaving getAllAccountsByUser() for userId: {} with # of accounts: {}", userId, accounts.size());
+		List<AccountDto> accounts = jdbcTemplate.query(Queries.GET_ACCOUNTS_BY_USER, new AccountMapper(),
+				userId);
+		log.debug("Leaving getAllAccountsByUser() for userId: {} with # of accounts: {}", userId,
+				accounts.size());
 		return accounts;
 	}
 
 	@Transactional
-	public List<AccountDto> deactivateAccount(String accounts) {
-		if (accounts == null || accounts.isBlank()) {
-			throw new IllegalArgumentException(accountNotFound);
-		}
+	public List<AccountDto> deactivateAccount(@NonNull String accounts) {
 		String[] accArr = accounts.split(",");
 		log.debug("Entering deactivateAccount() for # of accounts: {}", accArr.length);
 		Set<Long> accountIds = new HashSet<>();
@@ -116,8 +119,8 @@ public class AccountServiceImpl implements AccountService {
 		}
 		final List<Account> updatedAccounts = accountRepository.saveAll(accountList);
 		for (Account account : updatedAccounts) {
-			accountDtos.add(new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
-					account.isStatus(), null));
+			accountDtos.add(new AccountDto(account.getId(), account.getAccountId(),
+					account.getAccountName(), account.isStatus(), null));
 		}
 		log.debug("Leaving deactivateAccount() for accountId: {}");
 		return accountDtos;
@@ -128,8 +131,8 @@ public class AccountServiceImpl implements AccountService {
 		List<UserAccount> userAccount = new ArrayList<>();
 		for (UserDto userDto : userDtos) {
 			account.getUserAccount().stream()
-					.filter(u -> u.getUser().getId().longValue() == userDto.getId().longValue()).findAny()
-					.ifPresentOrElse(u -> {
+					.filter(u -> u.getUser().getId().longValue() == userDto.getId().longValue())
+					.findAny().ifPresentOrElse(u -> {
 						UserDto userDtoById = getUserById(userDto.getId().longValue());
 						log.debug("User Object: ", userDtoById);
 						u.setStatus(status);
@@ -143,8 +146,7 @@ public class AccountServiceImpl implements AccountService {
 							user.setStatus(userDtoById.getStatus());
 							userAccount.add(new UserAccount(user, true));
 						} else {
-							log.debug(
-									"User {} not found. User account map will be skipped, rest other accounts will be processed",
+							log.debug("User {} not found. User account map will be skipped, rest other accounts will be processed",
 									userDto.getId());
 						}
 					});
@@ -169,8 +171,8 @@ public class AccountServiceImpl implements AccountService {
 				try {
 					accountRepository.save(account);
 				} catch (IllegalArgumentException ex) {
-					log.error("Error while saving the account: {}. Exception: {}", account.getAccountId(),
-							ex.getMessage());
+					log.error("Error while saving the account: {}. Exception: {}",
+							account.getAccountId(), ex.getMessage());
 				}
 			}
 		}
@@ -222,24 +224,24 @@ public class AccountServiceImpl implements AccountService {
 		Account account = new Account(accountDto.getAccountId(), accountDto.getAccountName(),
 				userAccounts != null ? userAccounts : null);
 		try {
-			accountRepository.save(account);
-			if (account.getId() != null) {
-				log.debug("Leaving addAccount() with Id: {}", accountDto.getId());
-				return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
-						account.isStatus(),
-						account.getUserAccount() != null && !account.getUserAccount().isEmpty()
-								? account.getUserAccount().stream()
-										.map(acc -> new UserDto(acc.getUser().getId(), acc.getUser().getFirstName(),
-												acc.getUser().getMiddleInitial(), acc.getUser().getStatus(),
-												acc.getUser().getLastName(), acc.getUser().getEmail(), null))
-										.collect(Collectors.toList())
-								: new ArrayList<>());
-			}
+			account = accountRepository.save(account);
+			log.debug("Leaving addAccount() with Id: {}", accountDto.getId());
+			return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
+					account.isStatus(),
+					!account.getUserAccount().isEmpty() ? account.getUserAccount().stream()
+							.map(acc -> new UserDto(acc.getUser().getId(),
+									acc.getUser().getFirstName(),
+									acc.getUser().getMiddleInitial(),
+									acc.getUser().getStatus(),
+									acc.getUser().getLastName(),
+									acc.getUser().getEmail(), null))
+							.collect(Collectors.toList()) : new ArrayList<>());
+
 		} catch (Exception ex) {
 			log.error("Error while saving the accounts: {}", ex.getMessage());
-			throw new UserServiceException("Account could not be assigned to the user. Please contact admin !");
+			throw new UserServiceException(
+					"Account could not be assigned to the user. Please contact admin !");
 		}
-		return null;
 	}
 
 	public List<AccountDto> getAccountFromCache(List<AccountDto> accountDtos) {

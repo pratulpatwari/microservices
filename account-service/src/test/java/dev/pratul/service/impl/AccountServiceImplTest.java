@@ -123,7 +123,7 @@ class AccountServiceImplTest {
 
 	@Test
 	void testDeactivateAccount() {
-		assertThrows(IllegalArgumentException.class, () -> {
+		assertThrows(NullPointerException.class, () -> {
 			accountService.deactivateAccount(null);
 		}, "Account not found");
 		assertThrows(IllegalArgumentException.class, () -> {

@@ -26,12 +26,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "account", schema = "public")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Account {
 
 	@Id
@@ -69,9 +71,6 @@ public class Account {
 	@Basic(fetch = FetchType.LAZY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	private ZonedDateTime updateDate;
-
-	public Account() {
-	}
 
 	public Account(String accountId, String accountName) {
 		this.accountId = accountId;
