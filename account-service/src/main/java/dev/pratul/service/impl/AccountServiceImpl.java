@@ -25,8 +25,8 @@ import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
 import dev.pratul.exception.UserServiceException;
-import dev.pratul.model.AccountMapper;
-import dev.pratul.model.Queries;
+import dev.pratul.repository.AccountMapper;
+import dev.pratul.repository.Queries;
 import dev.pratul.service.api.AccountService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,9 +52,7 @@ public class AccountServiceImpl implements AccountService {
 	@Transactional(readOnly = true)
 	public AccountDto getAccountById(long id) {
 		log.debug("Entering getAccountById() {}", id);
-		Account account = accountRepository.findById(id)
-				.orElseThrow(() -> new NoSuchElementException(accountNotFound));
-		log.debug("Leaving getAccountById() {}", id);
+		Account account = accountRepository.findById(id).orElseThrow(() -> new NoSuchElementException(accountNotFound));
 		return new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(),
 				account.isStatus());
 	}
@@ -142,7 +140,8 @@ public class AccountServiceImpl implements AccountService {
 			if (accDto != null && !accDto.getUsers().isEmpty() && account.isStatus()) {
 				userAccountsMapping(account, accDto.getUsers(), accDto.isStatus());
 				try {
-					accountRepository.save(account);
+					account = accountRepository.save(account);
+					result.add(new AccountDto(account.getId(), account.getAccountId(), account.getAccountName(), account.isStatus()));
 				} catch (IllegalArgumentException ex) {
 					log.error("Error while saving the account: {}. Exception: {}",
 							account.getAccountId(), ex.getMessage());
@@ -196,7 +195,7 @@ public class AccountServiceImpl implements AccountService {
 									acc.getUser().getStatus(),
 									acc.getUser().getLastName(),
 									acc.getUser().getEmail(), null))
-							.collect(Collectors.toList()) : new ArrayList<>());
+							.collect(Collectors.toList()) : List.of());
 
 		} catch (Exception ex) {
 			log.error("Error while saving the accounts: {}", ex.getMessage());

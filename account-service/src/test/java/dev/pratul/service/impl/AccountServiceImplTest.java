@@ -28,7 +28,7 @@ import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
-import dev.pratul.model.AccountMapper;
+import dev.pratul.repository.AccountMapper;
 import dev.pratul.service.api.AccountService;
 
 @SpringBootTest

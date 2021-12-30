@@ -40,12 +40,11 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 		log.debug("Entering getUserById with userId: {}", userId);
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new NoSuchElementException("User does not exists"));
-		UserDto userDto = new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
+		log.debug("Leaving getUserById with userId: {}", userId);
+		return new UserDto(user.getId(), user.getFirstName(), user.getMiddleInitial(),
 				user.getStatus(), user.getLastName(), user.getEmail(),
 				user.getRoles().stream().map(role -> new RoleDto(role.getId(), role.getDescription()))
 						.collect(Collectors.toList()));
-		log.debug("Leaving getUserById with userId: {}", userId);
-		return userDto;
 	}
 
 	@Transactional(readOnly = true)
@@ -143,11 +142,8 @@ public class CustomUserDetailsService implements ICustomUserDetailsService {
 	}
 
 	@Transactional
-	public UserDto updateUserDetails(UserDto userDto) {
+	public UserDto updateUserDetails(@NonNull UserDto userDto) {
 		log.debug("Entering updateUserDetails() with userDto: {}", userDto);
-		if (userDto.getId() == null) {
-			throw new IllegalArgumentException("Could not identify the user");
-		}
 		User user = userRepository.findById(userDto.getId())
 				.orElseThrow(() -> new NoSuchElementException("User not found"));
 		user.setFirstName(userDto.getFirstName());

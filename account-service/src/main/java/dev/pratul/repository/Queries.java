@@ -1,4 +1,4 @@
-package dev.pratul.model;
+package dev.pratul.repository;
 
 public final class Queries {
 

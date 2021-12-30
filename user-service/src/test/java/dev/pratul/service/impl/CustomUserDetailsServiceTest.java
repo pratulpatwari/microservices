@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -196,7 +197,7 @@ class CustomUserDetailsServiceTest {
 	@Test
 	void testUpdateUserDetails() {
 		Mockito.when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(user));
-		assertThrows(IllegalArgumentException.class, () -> {
+		assertThrows(NoSuchElementException.class, () -> {
 			userService.updateUserDetails(userDto);
 		}, "Could not identify the user");
 		userDto.setId(1L);

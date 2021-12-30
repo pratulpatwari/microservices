@@ -19,22 +19,18 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.tcp.TcpClient;
 
 @SpringBootApplication
 @EnableEurekaClient
@@ -42,13 +38,15 @@ import reactor.netty.http.client.HttpClient;
 @EntityScan(basePackages = { "dev.pratul" })
 @EnableTransactionManagement
 @EnableCircuitBreaker
-@EnableWebFlux
-@ComponentScan("dev.pratul")
-public class AccountServiceApplication implements WebFluxConfigurer {
+// @EnableWebFlux
+// @ComponentScan("dev.pratul")
+public class AccountServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AccountServiceApplication.class, args);
 	}
+
+	private static final int TIMEOUT = 1000;
 
 	@Bean(name = "dataSource")
 	@ConfigurationProperties(prefix = "spring.datasource")
@@ -69,16 +67,16 @@ public class AccountServiceApplication implements WebFluxConfigurer {
 	}
 
 	@Bean
-	@LoadBalanced //enables integration with service discovery and load balancing using the Netflix OSS Ribbon client
-	public WebClient.Builder webClient() {
-		HttpClient httpClient = HttpClient.create().tcpConfiguration(client -> client
-				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-				.doOnConnected(conn -> conn
-						.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS))
-						.addHandlerLast(new WriteTimeoutHandler(5000, TimeUnit.MILLISECONDS))));
-		ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient.wiretap(true));
-		return WebClient.builder().clientConnector(connector)
-				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+	@LoadBalanced //enables integration with service discovery and load balancing using the Netflix OSS Ribbon clientO
+	public WebClient.Builder webClientWithTimeout() {
+		TcpClient tcpClient = TcpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TIMEOUT)
+				.doOnConnected(connection -> {
+					connection.addHandlerLast(
+							new ReadTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS));
+					connection.addHandlerLast(
+							new WriteTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS));
+				});
+		return WebClient.builder().clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)));
 	}
 
 	@Bean
