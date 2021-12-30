@@ -33,15 +33,15 @@ public interface AccountService {
 	public List<AccountDto> getAllAccountsByUser(long userId);
 
 	/**
-	 * @param account Comma separated list of accounts which needs to be deactivated
-	 * @return List of AccountDto which are activated or deactivated
+	 * @param account accountId which needs to be deactivated
+	 * @return Boolean value indicating success/failure
 	 * @apiNote Activate/Deactivate the account. Only users with certain roles can
 	 *          perform this action. De-activating the account will de-activate at
 	 *          user level as well. However, re-activating the account will not
 	 *          provide the access to previously assigned users. If you want to
 	 *          activate the account for each user, refer updateUserAccount
 	 */
-	public List<AccountDto> deactivateAccount(String account);
+	public boolean deactivateAccount(long account);
 
 	/**
 	 * @param accounts List of accounts with users for whom account needs to be

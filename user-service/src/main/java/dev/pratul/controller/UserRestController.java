@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +36,8 @@ public class UserRestController {
 	}
 	
 	@GetMapping("/all")
-	public ResponseEntity<List<UserDto>> getAllUsers(){
-		return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+	public ResponseEntity<Page<UserDto>> getAllUsers(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int size){
+		return new ResponseEntity<>(userService.getAllUsers(page, size), HttpStatus.OK);
 	}
 
 	@GetMapping
