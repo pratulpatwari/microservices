@@ -1,6 +1,5 @@
 package dev.pratul.service.impl;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,7 +28,7 @@ import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Account;
 import dev.pratul.entity.User;
 import dev.pratul.entity.UserAccount;
-import dev.pratul.model.AccountMapper;
+import dev.pratul.repository.AccountMapper;
 import dev.pratul.service.api.AccountService;
 
 @SpringBootTest
@@ -123,24 +122,15 @@ class AccountServiceImplTest {
 
 	@Test
 	void testDeactivateAccount() {
-		assertThrows(IllegalArgumentException.class, () -> {
-			accountService.deactivateAccount(null);
-		}, "Account not found");
-		assertThrows(IllegalArgumentException.class, () -> {
-			accountService.deactivateAccount("12k,pratul12,sd");
+		assertThrows(NoSuchElementException.class, () -> {
+			accountService.deactivateAccount(1);
 		}, "Invalid accounts");
-		Mockito.when(accountRepository.findByIdIn(Mockito.anySet())).thenReturn(new HashSet<>());
-		assertThrows(IllegalArgumentException.class, () -> {
-			accountService.deactivateAccount("1,2,3,4");
-		}, "Account not found");
-		Mockito.when(accountRepository.findByIdIn(Mockito.anySet()))
-				.thenReturn(Stream.of(account).collect(Collectors.toSet()));
-		Mockito.when(accountRepository.saveAll(Mockito.anyIterable()))
-				.thenReturn(Stream.of(account).collect(Collectors.toList()));
-		List<AccountDto> accounts = accountService.deactivateAccount("1");
-		assertEquals(1, accounts.size());
-		assertEquals(1L, accounts.get(0).getId());
-		assertFalse(accounts.get(0).isStatus());
+		Mockito.when(accountRepository.findById(Mockito.anyLong()))
+				.thenReturn(Optional.of(account));
+		Mockito.when(accountRepository.save(Mockito.any()))
+				.thenReturn(account);
+		boolean isDeactivated = accountService.deactivateAccount(1);
+		assertTrue(isDeactivated);
 	}
 
 	@Test

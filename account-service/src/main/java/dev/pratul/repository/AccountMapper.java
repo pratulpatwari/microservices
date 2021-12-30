@@ -1,4 +1,4 @@
-package dev.pratul.model;
+package dev.pratul.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

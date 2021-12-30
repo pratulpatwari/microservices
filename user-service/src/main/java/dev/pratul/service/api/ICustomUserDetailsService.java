@@ -2,6 +2,8 @@ package dev.pratul.service.api;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
 
@@ -19,7 +21,7 @@ public interface ICustomUserDetailsService {
 	 * 
 	 * @apiNote Return the list of all users in the DB
 	 */
-	List<UserDto> getAllUsers();
+	Page<UserDto> getAllUsers(int page, int size);
 
 	/**
 	 * @param userDto - user which needs to be onboarded

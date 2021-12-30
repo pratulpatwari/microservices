@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
@@ -28,6 +29,7 @@ import lombok.Setter;
 @Table(name = "users", schema = "public")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
 	@Id
@@ -57,9 +59,6 @@ public class User {
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<UserAccount> userAccount = new HashSet<>();
-
-	public User() {
-	}
 
 	public User(Long id) {
 		this.id = id;

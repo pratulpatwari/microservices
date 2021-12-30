@@ -1,5 +1,8 @@
 package dev.pratul.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -23,5 +26,5 @@ public class UserDto {
 	private String lastName;
 	private String email;
 	@NotNull(message = "Roles cannot be blank")
-	private RoleDto[] roles;
+	private List<RoleDto> roles = new ArrayList<>();
 }
