@@ -19,7 +19,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>11</java.version>
 		<maven.compiler.release>11</maven.compiler.release>
-		<spring.version>2.2.6.RELEASE</spring.version>
+		<spring.version>2.5.12</spring.version>
 		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
 		<postgresql>42.2.23</postgresql>
 		<reactor.version>1.0.1.RELEASE</reactor.version>
