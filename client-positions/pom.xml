@@ -11,7 +11,7 @@
 		<groupId>dev.pratul</groupId>
 		<artifactId>Microservices</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath />
+<!--		<relativePath />-->
 		<!-- lookup parent from repository -->
 	</parent>
 

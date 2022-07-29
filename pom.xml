@@ -23,7 +23,7 @@
 		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
 		<postgresql>42.3.3</postgresql>
 		<reactor.version>1.0.1.RELEASE</reactor.version>
-		<poi.version>5.0.0</poi.version>
+		<poi.version>5.2.2</poi.version>
 	</properties>
 
 	<modules>
@@ -150,7 +150,7 @@
 		</dependencies>
 	</dependencyManagement>
 	<!-- distribution of projects in nexus repository  -->
-	<distributionManagement>
+	<!--<distributionManagement>
 		<repository>
 			<id>nexus</id>
 			<name>maven-releases</name>
@@ -161,5 +161,5 @@
 			<name>maven-snapshots</name>
 			<url>http://localhost:8081/repository/maven-snapshots/</url>
 		</snapshotRepository>
-	</distributionManagement>
+	</distributionManagement>-->
 </project>
