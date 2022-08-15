@@ -35,11 +35,11 @@ public class UserAccount {
 	@SequenceGenerator(name = "seq_gen", sequenceName = "user_account_map_id_seq", schema = "public", allocationSize = 1)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne//(fetch = FetchType.LAZY)
 	@JoinColumn(name = "acc_id")
 	private Account account;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne//(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 

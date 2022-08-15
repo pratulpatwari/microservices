@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
 
-public interface ICustomUserDetailsService {
+public interface UserDetailsService {
 
 	/**
 	 * @return RoleDto array

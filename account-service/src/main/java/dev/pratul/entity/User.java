@@ -57,8 +57,8 @@ public class User {
 	@Column(name = "username")
 	private String userName;
 	
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<UserAccount> userAccount = new HashSet<>();
+	/*@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<UserAccount> userAccount = new HashSet<>();*/
 
 	public User(Long id) {
 		this.id = id;

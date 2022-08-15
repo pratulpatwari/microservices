@@ -16,32 +16,32 @@ import dev.pratul.entity.User;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-	public Set<Account> findByIdIn(Set<Long> ids);
+	Set<Account> findByIdIn(Set<Long> ids);
 	
-	public Set<Account> findByIdIn(long[] ids);
+	Set<Account> findByIdIn(long[] ids);
 	
-	public Set<Account> findByIdIn(Long[] ids);
+	Set<Account> findByIdIn(Long[] ids);
 
-	public Optional<Account> findByAccountId(String accountId);
+	Optional<Account> findByAccountId(String accountId);
 	
-	public Set<Account> findByAccountIdIn(Collection<String> accountId);
+	Set<Account> findByAccountIdIn(Collection<String> accountId);
 
-	public Set<Account> findByUserAndStatusTrue(User user);
+	Set<Account> findByUserAndStatusTrue(User user);
 
-	public Set<Account> findByUser(User user);
+	Set<Account> findByUser(User user);
 	
-	public Set<Account> findByUserAccountUserId(Long userId);
+	Set<Account> findByUserAccountUserId(Long userId);
 
-	public Set<Account> findByUserAndStatusTrueAndUserAccountStatusTrue(User user);
+	Set<Account> findByUserAndStatusTrueAndUserAccountStatusTrue(User user);
 
-	public Set<Account> findByUserIdAndStatusTrueAndUserAccountStatusTrue(Long userId);
+	Set<Account> findByUserIdAndStatusTrueAndUserAccountStatusTrue(Long userId);
 	
-	public Set<Account> findByUserIdAndStatusTrueAndUserAccountStatus(Long userId, boolean status);
+	Set<Account> findByUserIdAndStatusTrueAndUserAccountStatus(Long userId, boolean status);
 
-	public Set<Account> findByAccountIdInAndUserIdIn(List<String> accountId, List<Long> userId);
+	Set<Account> findByAccountIdInAndUserIdIn(List<String> accountId, List<Long> userId);
 
 	@Modifying
 	@Query("update Account acc set acc.status=:status where acc.id=:accountId")
-	public void updateAccountStatus(Long accountId, boolean status);
+	void updateAccountStatus(Long accountId, boolean status);
 
 }

@@ -53,22 +53,22 @@ public class Account {
 
 	@OneToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_account_map", schema = "public", joinColumns = {
-			@JoinColumn(name = "acc_id", referencedColumnName = "id", nullable = false, updatable = true) }, inverseJoinColumns = {
-					@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, updatable = true) })
+			@JoinColumn(name = "acc_id", referencedColumnName = "id", nullable = false) }, inverseJoinColumns = {
+					@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false) })
 	private Set<User> user = new HashSet<>();
 
-	@OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<UserAccount> userAccount = new HashSet<>();
 
 	@CreationTimestamp
 	@Column(name = "create_date")
-	@Basic(fetch = FetchType.LAZY)
+//	@Basic(fetch = FetchType.LAZY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	private ZonedDateTime createDate;
 
 	@UpdateTimestamp
 	@Column(name = "update_date")
-	@Basic(fetch = FetchType.LAZY)
+//	@Basic(fetch = FetchType.LAZY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd@HH:mm:ss.SSSZ")
 	private ZonedDateTime updateDate;
 

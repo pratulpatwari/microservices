@@ -1,7 +1,4 @@
-spring:
-  cloud:
-    config:
-      uri: http://localhost:8888
-      
-  application:
-    name: account-service
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery:8761/eureka

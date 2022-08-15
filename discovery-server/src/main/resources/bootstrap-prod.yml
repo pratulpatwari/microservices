@@ -1,7 +1,0 @@
-spring:
-  cloud:
-    config:
-      uri: http://<ip-address-of-production-servers>:9999 # details of spring cloud config production server. I have kept 9999 for production
-      
-  application:
-    name: discovery-server

@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  discovery:
+    image: discovery-server
+    container_name: discovery-server
+    build:
+      context: ./discovery-server
+      dockerfile: ./Dockerfile
+    ports:
+      - "8761:8761"
+
+  config:
+    image: spring-cloud-config-server
+    container_name: spring-cloud-config-server
+    build:
+      context: ./spring-cloud-config-server
+      dockerfile: ./Dockerfile
+    environment:
+      - JAVA_OPTS= 
+          -DEUREKA_SERVER=http://discovery:8761/eureka
+          -DREPO=https://github.com/pratulpatwari/microservices
+#          -Dspring.cloud.config.server.git.uri=https://github.com/pratulpatwari/microservices/tree/master/configrepo/dev
+    depends_on:
+      - discovery
+    ports:
+      - "8888:8888"
+
+#  user-service:
+#    image: user-service
+#    container_name: user-service
+#    build:
+#      context: ./user-service
+#      dockerfile: ./Dockerfile
+#    ports:
+#      - "9090:9090"
+#    environment:
+#      - JAVA_OPTS=
+#        -DEUREKA_SERVER=http://discovery:8761/eureka
+#        -DCONFIG_SERVER=http://config:8888
+#    depends_on:
+#      - config
+#      - discovery

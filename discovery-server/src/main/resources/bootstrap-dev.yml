@@ -1,7 +1,0 @@
-spring:
-  cloud:
-    config:
-      uri: http://spring-cloud-config-server:8888
-      
-  application:
-    name: discovery-server

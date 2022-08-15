@@ -18,15 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.pratul.dto.RoleDto;
 import dev.pratul.dto.UserDto;
-import dev.pratul.service.api.ICustomUserDetailsService;
+import dev.pratul.service.api.UserDetailsService;
 
 @RestController
 @RequestMapping("/api")
-public class UserRestController {
+public class UserController {
 
-	private ICustomUserDetailsService userService;
+	private UserDetailsService userService;
 
-	public UserRestController(ICustomUserDetailsService userService) {
+	public UserController(UserDetailsService userService) {
 		this.userService = userService;
 	}
 

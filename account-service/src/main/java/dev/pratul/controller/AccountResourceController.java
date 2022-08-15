@@ -50,7 +50,8 @@ public class AccountResourceController {
 
 	@PutMapping("/user")
 	public ResponseEntity<List<AccountDto>> updateUserAccount(@RequestBody @Valid List<AccountDto> accountDto) {
-		return new ResponseEntity<>(accountService.updateUserAccount(accountDto), HttpStatus.OK);
+		List<AccountDto> result = accountService.updateUserAccount(accountDto);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
 	@PostMapping("/add")

@@ -28,10 +28,10 @@ import dev.pratul.entity.User;
 import dev.pratul.exception.UserServiceException;
 
 @SpringBootTest
-class CustomUserDetailsServiceTest {
+class UserDetailsServiceImplTest {
 
 	@Autowired
-	private CustomUserDetailsService userService;
+	private UserDetailsServiceImpl userService;
 
 	@MockBean
 	UserRepository userRepository;

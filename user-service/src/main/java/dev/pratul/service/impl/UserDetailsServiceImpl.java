@@ -19,18 +19,18 @@ import dev.pratul.dto.UserDto;
 import dev.pratul.entity.Role;
 import dev.pratul.entity.User;
 import dev.pratul.exception.UserServiceException;
-import dev.pratul.service.api.ICustomUserDetailsService;
+import dev.pratul.service.api.UserDetailsService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class CustomUserDetailsService implements ICustomUserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
 	private UserRepository userRepository;
 	private RolesRepository roleRepository;
 
-	public CustomUserDetailsService(UserRepository userRepository, RolesRepository roleRepository) {
+	public UserDetailsServiceImpl(UserRepository userRepository, RolesRepository roleRepository) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 	}

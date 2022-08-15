@@ -61,14 +61,13 @@ public class AccountServiceImpl implements AccountService {
 	public AccountDto getAccountDetailsById(long id) {
 		log.debug("Entering getAccountDetailsById() with account id: {}", id);
 		AccountDto account = jdbcTemplate.queryForObject(Queries.GET_ACCOUNT_DETAILS, new AccountMapper(), id);
-		if (account != null) {
-			log.debug("Leaving getAccountDetailsById() with account id: {} and # of user: {}", id,
-					account.getUsers().size());
-
-			return account;
-		} else {
+		if (account == null) {
 			throw new NoSuchElementException(accountNotFound);
 		}
+		log.debug("Leaving getAccountDetailsById() with account id: {} and # of user: {}", id,
+				account.getUsers().size());
+
+		return account;
 	}
 
 	@Transactional(readOnly = true)
@@ -101,14 +100,13 @@ public class AccountServiceImpl implements AccountService {
 	private void userAccountsMapping(Account account, List<UserDto> userDtos, boolean status) {
 		List<UserAccount> userAccount = new ArrayList<>();
 		for (UserDto userDto : userDtos) {
+			UserDto userDtoById = getUserById(userDto.getId().longValue());
+			log.debug("User Object: ", userDtoById);
 			account.getUserAccount().stream()
 					.filter(u -> u.getUser().getId().equals(userDto.getId()))
 					.findAny().ifPresentOrElse(u -> {
-						UserDto userDtoById = getUserById(userDto.getId().longValue());
-						log.debug("User Object: ", userDtoById);
 						u.setStatus(status);
 					}, () -> {
-						UserDto userDtoById = getUserById(userDto.getId());
 						if (userDtoById != null) {
 							User user = new User();
 							user.setFirstName(userDtoById.getFirstName());
@@ -128,7 +126,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@HystrixCommand(fallbackMethod = "getAccountFromCache", commandKey = "accountService")
-	@Transactional(readOnly = false)
+	@Transactional
 	public List<AccountDto> updateUserAccount(List<AccountDto> accountDtos) {
 		log.debug("Entering updateUserAccount() with # of accounts: {}", accountDtos.size());
 		List<AccountDto> result = new LinkedList<>();
@@ -153,7 +151,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	private UserDto getUserById(long userId) {
-		String url = apiService.getUser() + "/" + userId;
+		String url = apiService.getUser() + userId;
 		return webClientBuilder.build().get().uri(url)
 				.header(Constants.CORRELATION_ID_HEADER_NAME,
 						MDC.get(Constants.CORRELATION_ID_LOG_VAR_NAME))

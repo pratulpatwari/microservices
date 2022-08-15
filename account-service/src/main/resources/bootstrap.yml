@@ -1,4 +1,12 @@
 spring:
+  application:
+    name: account-service
   profiles:
     active:
-    - dev
+      - dev
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        serviceId: configserver
+    failFast: true
