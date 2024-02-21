@@ -21,7 +21,7 @@
 		<maven.compiler.release>11</maven.compiler.release>
 		<spring.version>2.5.12</spring.version>
 		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
-		<postgresql>42.4.1</postgresql>
+		<postgresql>42.7.2</postgresql>
 		<reactor.version>1.0.1.RELEASE</reactor.version>
 		<poi.version>5.2.2</poi.version>
 	</properties>
